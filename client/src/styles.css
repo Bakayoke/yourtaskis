@@ -1,8 +1,8 @@
 :root {
   color-scheme: dark;
 
-  --font-display: 'Archivo Black', system-ui, sans-serif;
-  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-display: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   --bg0: #120c18;
   --bg1: #1f1428;
@@ -43,6 +43,18 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(900px 500px at 0% -10%, #4a1942 0%, transparent 55%),
+    radial-gradient(700px 420px at 100% 20%, #3d2a00 0%, transparent 50%),
+    linear-gradient(165deg, var(--bg0), var(--bg1));
+}
+
 button,
 input,
 textarea {
@@ -52,17 +64,6 @@ textarea {
 button {
   cursor: pointer;
   border: none;
-}
-
-.backdrop {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(900px 500px at 0% -10%, #4a1942 0%, transparent 55%),
-    radial-gradient(700px 420px at 100% 20%, #3d2a00 0%, transparent 50%),
-    linear-gradient(165deg, var(--bg0), var(--bg1));
 }
 
 .app {

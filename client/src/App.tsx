@@ -274,7 +274,6 @@ export default function App() {
   return (
     <ErrorBoundary>
     <div className={`app${hostLayout ? ' host' : ''}`}>
-      <div className="backdrop" aria-hidden />
       <div className="content-layer">
       <ConnBadge conn={conn} />
       {banner && <div className="banner">{banner}</div>}
