@@ -199,13 +199,20 @@ io.on('connection', (socket) => {
     }
   })
 
-  socket.on('setMaxRounds', (payload, ack) => {
-    const binding = bindingFrom(payload)
-    if (!binding) return ack?.({ ok: false, error: 'Inte i ett rum' })
-    const result = setMaxRounds(binding.code, binding.playerId, Number(payload?.maxRounds ?? 0))
-    if ('error' in result) return ack?.({ ok: false, error: result.error })
-    ack?.({ ok: true, room: toPublicRoom(result, binding.playerId) })
-    broadcastRoom(result.code)
+  socket.on('setMaxRounds', async (payload, ack) => {
+    try {
+      const code = String(payload?.roomCode ?? payload?.code ?? '')
+      if (code) await hydrateRoom(code)
+      const binding = bindingFrom(payload)
+      if (!binding) return ack?.({ ok: false, error: 'Inte i ett rum' })
+      const result = setMaxRounds(binding.code, binding.playerId, Number(payload?.maxRounds ?? 0))
+      if ('error' in result) return ack?.({ ok: false, error: result.error })
+      ack?.({ ok: true, room: toPublicRoom(result, binding.playerId) })
+      broadcastRoom(result.code)
+    } catch (e) {
+      console.error(e)
+      ack?.({ ok: false, error: 'Kunde inte ändra antal rundor' })
+    }
   })
 
   socket.on('startGame', (payload, ack) => {

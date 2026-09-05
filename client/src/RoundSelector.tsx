@@ -16,6 +16,7 @@ type Props = {
   disabled?: boolean
   variant?: 'mobile' | 'tv'
   onChange?: (maxRounds: number) => void
+  onError?: (message: string) => void
 }
 
 function isPreset(value: number) {
@@ -29,7 +30,7 @@ export function selectedRoundSummary(maxRounds: number) {
   return `Valt: ${rounds} ${word}`
 }
 
-export function RoundSelector({ maxRounds, disabled, variant = 'mobile', onChange }: Props) {
+export function RoundSelector({ maxRounds, disabled, variant = 'mobile', onChange, onError }: Props) {
   const rounds = normalizeMaxRounds(maxRounds)
   const [custom, setCustom] = useState(!isPreset(rounds) && rounds > 0)
   const [customValue, setCustomValue] = useState(
@@ -44,15 +45,23 @@ export function RoundSelector({ maxRounds, disabled, variant = 'mobile', onChang
   }, [rounds])
 
   async function pick(value: number) {
-    if (disabled || busy) return
+    if (disabled || busy || value === rounds) return
     setCustom(false)
+    const previous = rounds
+    onChange?.(value)
     setBusy(true)
     try {
       const res = await setMaxRounds(value)
       if (res.ok) {
         const next = normalizeMaxRounds(res.room?.maxRounds ?? value)
-        onChange?.(next)
+        if (next !== value) onChange?.(next)
+      } else {
+        onChange?.(previous)
+        onError?.(res.error ?? 'Kunde inte ändra antal test')
       }
+    } catch (e) {
+      onChange?.(previous)
+      onError?.(e instanceof Error ? e.message : 'Kunde inte ändra antal test')
     } finally {
       setBusy(false)
     }
@@ -61,13 +70,22 @@ export function RoundSelector({ maxRounds, disabled, variant = 'mobile', onChang
   async function applyCustom() {
     const n = Math.round(Number(customValue))
     if (!Number.isFinite(n) || n < 1 || n > 99) return
+    if (n === rounds) return
+    const previous = rounds
+    onChange?.(n)
     setBusy(true)
     try {
       const res = await setMaxRounds(n)
       if (res.ok) {
         const next = normalizeMaxRounds(res.room?.maxRounds ?? n)
-        onChange?.(next)
+        if (next !== n) onChange?.(next)
+      } else {
+        onChange?.(previous)
+        onError?.(res.error ?? 'Kunde inte ändra antal test')
       }
+    } catch (e) {
+      onChange?.(previous)
+      onError?.(e instanceof Error ? e.message : 'Kunde inte ändra antal test')
     } finally {
       setBusy(false)
     }

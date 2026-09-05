@@ -13,6 +13,24 @@ let rejoinInFlight: Promise<{
   error?: string
 } | null> | null = null
 let connectionListenersAttached = false
+let boundSessionKey: string | null = null
+
+function sessionKey(code: string, playerId: string) {
+  return `${code.toUpperCase()}:${playerId}`
+}
+
+function markSessionBound(code: string, playerId: string) {
+  boundSessionKey = sessionKey(code, playerId)
+}
+
+function isSessionBound() {
+  const session = loadSession()
+  if (!session || !boundSessionKey) return false
+  return (
+    boundSessionKey === sessionKey(session.code, session.playerId) &&
+    Boolean(socket?.connected)
+  )
+}
 
 type RoomHandler = (room: PublicRoom) => void
 let onRoomHandler: RoomHandler | null = null
@@ -34,6 +52,9 @@ export function getSocket() {
     connectionListenersAttached = true
     socket.on('connect', () => {
       void ensureSessionBound()
+    })
+    socket.on('disconnect', () => {
+      boundSessionKey = null
     })
     socket.on('room', (room: PublicRoom) => {
       onRoomHandler?.(normalizePublicRoom(room))
@@ -92,6 +113,9 @@ export async function ensureSessionBound(
 ): Promise<{ ok: boolean; playerId?: string; room?: PublicRoom; error?: string } | null> {
   const session = loadSession()
   if (!session) return null
+  if (isSessionBound()) {
+    return { ok: true, playerId: session.playerId }
+  }
   if (rejoinInFlight) return rejoinInFlight
 
   rejoinInFlight = (async () => {
@@ -101,7 +125,10 @@ export async function ensureSessionBound(
     }
     for (let i = 0; i < retries; i++) {
       last = await rejoinGame(session.code, session.playerId)
-      if (last.ok && last.room) return last
+      if (last.ok && last.room) {
+        markSessionBound(session.code, session.playerId)
+        return last
+      }
       const err = last.error ?? ''
       if (err.includes('finns inte') || err.includes('hittades inte')) break
       await new Promise((r) => setTimeout(r, 700 * (i + 1)))
@@ -116,6 +143,9 @@ export async function ensureSessionBound(
   }
 }
 
+type OkRoom = { ok: true; playerId: string; room: PublicRoom }
+type Err = { ok: false; error: string }
+
 async function ack<T>(event: string, payload?: unknown): Promise<T> {
   const s = getSocket()
   if (!s.connected) {
@@ -126,10 +156,6 @@ async function ack<T>(event: string, payload?: unknown): Promise<T> {
         resolve()
       })
     })
-  }
-
-  if (event !== 'create' && event !== 'join' && event !== 'rejoin') {
-    await ensureSessionBound(2)
   }
 
   const session = loadSession()
@@ -144,16 +170,31 @@ async function ack<T>(event: string, payload?: unknown): Promise<T> {
         roomCode: raw.roomCode ?? session?.code,
       }
 
+  if (event !== 'create' && event !== 'join' && event !== 'rejoin' && event !== 'setMaxRounds') {
+    await ensureSessionBound(2)
+  }
+
   return new Promise((resolve, reject) => {
     s.timeout(12000).emit(event, body, (err: Error | null, res: T) => {
       if (err) reject(err)
-      else resolve(res)
+      else {
+        if (
+          isIdentityEvent &&
+          res &&
+          typeof res === 'object' &&
+          'ok' in res &&
+          (res as { ok: boolean }).ok &&
+          'playerId' in res &&
+          'room' in res
+        ) {
+          const ok = res as OkRoom
+          markSessionBound(ok.room.code, ok.playerId)
+        }
+        resolve(res)
+      }
     })
   })
 }
-
-type OkRoom = { ok: true; playerId: string; room: PublicRoom }
-type Err = { ok: false; error: string }
 
 export async function createGame(name: string) {
   return ack<OkRoom | Err>('create', { name })
@@ -249,6 +290,7 @@ export function saveSession(session: Session) {
 
 export function clearSession() {
   localStorage.removeItem(SESSION_KEY)
+  boundSessionKey = null
 }
 
 export function joinUrl(code: string) {

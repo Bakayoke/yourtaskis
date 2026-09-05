@@ -147,11 +147,11 @@ export default function App() {
   useEffect(() => subscribeConnection(setConn), [])
 
   useEffect(() => {
-    if (conn !== 'connected' || screen !== 'play' || !room) return
+    if (conn !== 'connected' || screen !== 'play') return
     const session = loadSession()
-    if (!session || session.code !== room.code) return
+    if (!session) return
     void ensureSessionBound()
-  }, [conn, screen, room])
+  }, [conn, screen])
 
   useEffect(() => {
     if (room?.status === 'challenge') {
@@ -451,6 +451,7 @@ export default function App() {
                     maxRounds={room.maxRounds}
                     disabled={busy}
                     onChange={(maxRounds) => setRoom((r) => (r ? { ...r, maxRounds } : r))}
+                    onError={setError}
                   />
                   <div className="stack">
                     <button

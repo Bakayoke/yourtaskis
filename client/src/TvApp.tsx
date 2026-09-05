@@ -124,9 +124,9 @@ export default function TvApp() {
   }, [])
 
   useEffect(() => {
-    if (conn !== 'connected' || !room) return
+    if (conn !== 'connected') return
     void ensureSessionBound()
-  }, [conn, room])
+  }, [conn])
 
   async function act(fn: () => Promise<{ ok: boolean; error?: string; room?: PublicRoom }>) {
     setError(null)
@@ -304,6 +304,7 @@ export default function TvApp() {
               disabled={busy}
               variant="tv"
               onChange={(maxRounds) => setRoom((r) => (r ? { ...r, maxRounds } : r))}
+              onError={setError}
             />
             <button
               type="button"
