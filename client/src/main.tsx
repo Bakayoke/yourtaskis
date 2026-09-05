@@ -1,7 +1,14 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
+import TvApp from './TvApp'
 import './styles.css'
+
+function isTvMode() {
+  const path = window.location.pathname.replace(/\/$/, '')
+  if (path === '/tv') return true
+  return new URLSearchParams(window.location.search).has('tv')
+}
 
 const rootEl = document.getElementById('root')
 if (!rootEl) {
@@ -11,7 +18,7 @@ if (!rootEl) {
 try {
   createRoot(rootEl).render(
     <StrictMode>
-      <App />
+      {isTvMode() ? <TvApp /> : <App />}
     </StrictMode>,
   )
 } catch (error) {

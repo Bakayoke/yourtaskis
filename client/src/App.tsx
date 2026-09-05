@@ -11,6 +11,7 @@ import {
   fetchRoomPreview,
   joinGame,
   joinUrl,
+  tvUrl,
   loadSession,
   nextRound,
   rejoinGame,
@@ -440,14 +441,19 @@ export default function App() {
                   <p className="muted">
                     {room.participantCount}/{room.minParticipants} deltagare
                   </p>
-                  <button
-                    type="button"
-                    className="btn primary"
-                    disabled={busy || room.participantCount < room.minParticipants}
-                    onClick={() => act(startGame)}
-                  >
-                    Starta första testet
-                  </button>
+                  <div className="stack">
+                    <button
+                      type="button"
+                      className="btn primary"
+                      disabled={busy || room.participantCount < room.minParticipants}
+                      onClick={() => act(startGame)}
+                    >
+                      Starta första testet
+                    </button>
+                    <a href={tvUrl(room.code)} className="btn secondary tv-link-btn" target="_blank" rel="noopener noreferrer">
+                      Öppna TV-läge ↗
+                    </a>
+                  </div>
                 </>
               ) : (
                 <>

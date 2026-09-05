@@ -250,3 +250,9 @@ export function joinUrl(code: string) {
   const base = import.meta.env.VITE_PUBLIC_APP_URL || window.location.origin
   return `${base.replace(/\/$/, '')}/?join=${encodeURIComponent(code)}`
 }
+
+export function tvUrl(code?: string) {
+  const base = import.meta.env.VITE_PUBLIC_APP_URL || window.location.origin
+  const url = `${base.replace(/\/$/, '')}/tv`
+  return code ? `${url}?code=${encodeURIComponent(code)}` : url
+}
