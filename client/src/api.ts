@@ -166,6 +166,10 @@ export async function rejoinGame(code: string, playerId: string) {
   return ack<OkRoom | Err>('rejoin', { code, playerId })
 }
 
+export async function setMaxRounds(maxRounds: number) {
+  return ack<{ ok: boolean; error?: string; room?: PublicRoom }>('setMaxRounds', { maxRounds })
+}
+
 export async function startGame() {
   return ack<{ ok: boolean; error?: string; room?: PublicRoom }>('startGame', {})
 }

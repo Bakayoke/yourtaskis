@@ -1,4 +1,4 @@
-import type { ChallengeType, SubmissionMode } from './challenges.js'
+import type { ChallengeType, SubmissionMode } from './challengeTypes.js'
 
 export type RoomStatus = 'lobby' | 'challenge' | 'judging' | 'scores' | 'finished'
 
@@ -21,6 +21,8 @@ export type Room = {
   players: Player[]
   status: RoomStatus
   roundIndex: number
+  /** 0 = unlimited rounds */
+  maxRounds: number
   currentChallengeId: string | null
   phaseEndsAt: number
   submissions: Submission[]
@@ -53,6 +55,7 @@ export type PublicRoom = {
   players: Player[]
   status: RoomStatus
   roundIndex: number
+  maxRounds: number
   challenge: PublicChallenge | null
   phaseEndsAt: number
   /** Host sees all; participants only see their own until judging */

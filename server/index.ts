@@ -35,6 +35,7 @@ import {
   roomsNeedingTick,
   scorePlayer,
   setBroadcastHook,
+  setMaxRounds,
   setPersistHook,
   startGame,
   submitResponse,
@@ -196,6 +197,15 @@ io.on('connection', (socket) => {
       console.error(e)
       ack?.({ ok: false, error: 'Kunde inte återansluta' })
     }
+  })
+
+  socket.on('setMaxRounds', (payload, ack) => {
+    const binding = bindingFrom(payload)
+    if (!binding) return ack?.({ ok: false, error: 'Inte i ett rum' })
+    const result = setMaxRounds(binding.code, binding.playerId, Number(payload?.maxRounds ?? 0))
+    if ('error' in result) return ack?.({ ok: false, error: result.error })
+    ack?.({ ok: true, room: toPublicRoom(result, binding.playerId) })
+    broadcastRoom(result.code)
   })
 
   socket.on('startGame', (payload, ack) => {

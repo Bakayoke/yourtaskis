@@ -11,6 +11,7 @@ const makeCode = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ', 4)
 const makeId = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12)
 
 export const MIN_PARTICIPANTS = 2
+export const DEFAULT_MAX_ROUNDS = 5
 const DISCONNECT_GRACE_MS = 60_000
 const HOST_TRANSFER_AFTER_MS = 90_000
 const ROOM_IDLE_MS = 12 * 60 * 60 * 1000
@@ -69,8 +70,12 @@ function participantCount(room: Room) {
   return participants(room).length
 }
 
-function isHost(room: Room, playerId: string) {
-  return room.hostId === playerId
+function normalizeRoom(room: Room) {
+  if (room.maxRounds == null || room.maxRounds < 0) room.maxRounds = DEFAULT_MAX_ROUNDS
+}
+
+function roundsComplete(room: Room) {
+  return room.maxRounds > 0 && room.roundIndex >= room.maxRounds
 }
 
 function challengeForRoom(room: Room): PublicChallenge | null {
@@ -119,13 +124,26 @@ function moveToJudging(room: Room) {
   room.roundScores = {}
 }
 
+function isHost(room: Room, playerId: string) {
+  return room.hostId === playerId
+}
+
+function finishGame(room: Room) {
+  room.status = 'finished'
+  room.phaseEndsAt = 0
+}
+
 function moveToScores(room: Room) {
   for (const [playerId, points] of Object.entries(room.roundScores)) {
     const player = room.players.find((p) => p.id === playerId)
     if (player) player.score += points
   }
-  room.status = 'scores'
-  room.phaseEndsAt = 0
+  if (roundsComplete(room)) {
+    finishGame(room)
+  } else {
+    room.status = 'scores'
+    room.phaseEndsAt = 0
+  }
 }
 
 export function allRooms() {
@@ -133,7 +151,9 @@ export function allRooms() {
 }
 
 export function getRoom(code: string) {
-  return rooms.get(code.toUpperCase())
+  const room = rooms.get(code.toUpperCase())
+  if (room) normalizeRoom(room)
+  return room
 }
 
 export function getBinding(socketId: string) {
@@ -144,13 +164,17 @@ export async function hydrateRoom(code: string) {
   const c = code.toUpperCase().trim()
   if (!c || rooms.has(c)) return
   const loaded = await loadRoomRecord(c)
-  if (loaded) rooms.set(c, loaded)
+  if (loaded) {
+    normalizeRoom(loaded)
+    rooms.set(c, loaded)
+  }
 }
 
 export async function reloadRoomFromStore(code: string) {
   const c = code.toUpperCase().trim()
   const loaded = await loadRoomRecord(c)
   if (loaded) {
+    normalizeRoom(loaded)
     rooms.set(c, loaded)
     return loaded
   }
@@ -159,6 +183,7 @@ export async function reloadRoomFromStore(code: string) {
 
 export function restoreRooms(restored: Room[]) {
   for (const room of restored) {
+    normalizeRoom(room)
     rooms.set(room.code, room)
   }
 }
@@ -172,6 +197,7 @@ export function createRoom(hostName: string, socketId: string) {
     players: [{ id: hostId, name: hostName.trim() || 'Testledare', connected: true, score: 0 }],
     status: 'lobby',
     roundIndex: 0,
+    maxRounds: DEFAULT_MAX_ROUNDS,
     currentChallengeId: null,
     phaseEndsAt: 0,
     submissions: [],
@@ -256,7 +282,7 @@ export function handleDisconnect(socketId: string) {
     }
     touch(r)
     onBroadcast?.(r.code)
-  }, p.id === room.hostId ? HOST_TRANSFER_AFTER_MS : DISCONNECT_GRACE_MS)
+  }, player.id === room.hostId ? HOST_TRANSFER_AFTER_MS : DISCONNECT_GRACE_MS)
 
   disconnectTimers.set(key, t)
 }
@@ -271,6 +297,19 @@ export function previewRoom(code: string) {
     playerCount: room.players.length,
     hostName: host?.name ?? 'Testledare',
   }
+}
+
+export function setMaxRounds(code: string, playerId: string, maxRounds: number) {
+  const room = getRoom(code)
+  if (!room) return { error: 'Rummet finns inte' as const }
+  if (!isHost(room, playerId)) return { error: 'Bara testledaren kan välja antal test' as const }
+  if (room.status !== 'lobby') return { error: 'Kan bara ändras i lobbyn' as const }
+
+  const n = Math.round(maxRounds)
+  if (n < 0 || n > 99) return { error: 'Ogiltigt antal rundor' as const }
+  room.maxRounds = n
+  touch(room)
+  return room
 }
 
 export function startGame(code: string, playerId: string) {
@@ -364,6 +403,7 @@ export function nextRound(code: string, playerId: string) {
   if (!room) return { error: 'Rummet finns inte' as const }
   if (!isHost(room, playerId)) return { error: 'Bara testledaren kan fortsätta' as const }
   if (room.status !== 'scores') return { error: 'Avsluta omgången först' as const }
+  if (roundsComplete(room)) return { error: 'Alla rundor är klara' as const }
 
   room.roundIndex += 1
   const next = pickNextChallenge(room.usedChallengeIds)
@@ -383,6 +423,7 @@ export function backToLobby(code: string, playerId: string) {
   room.submissions = []
   room.roundScores = {}
   room.roundIndex = 0
+  room.usedChallengeIds = []
   touch(room)
   return room
 }
@@ -392,8 +433,7 @@ export function endGame(code: string, playerId: string) {
   if (!room) return { error: 'Rummet finns inte' as const }
   if (!isHost(room, playerId)) return { error: 'Bara testledaren kan avsluta' as const }
 
-  room.status = 'finished'
-  room.phaseEndsAt = 0
+  finishGame(room)
   touch(room)
   return room
 }
@@ -465,6 +505,7 @@ export function toPublicRoom(room: Room, viewerId: string): PublicRoom {
     players: room.players,
     status: room.status,
     roundIndex: room.roundIndex,
+    maxRounds: room.maxRounds,
     challenge: challengeForRoom(room),
     phaseEndsAt: room.phaseEndsAt,
     submissions,

@@ -33,6 +33,7 @@ export type PublicRoom = {
   players: Player[]
   status: RoomStatus
   roundIndex: number
+  maxRounds: number
   challenge: PublicChallenge | null
   phaseEndsAt: number
   submissions: PublicSubmission[]

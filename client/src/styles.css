@@ -288,6 +288,55 @@ textarea {
   color: var(--muted);
 }
 
+.round-pill {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+}
+
+.round-picker {
+  margin: 1rem 0;
+}
+
+.round-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.round-pill-btn {
+  min-width: 2.5rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.round-pill-btn.active {
+  background: rgba(244, 196, 48, 0.2);
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.round-pill-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.round-custom {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  align-items: center;
+}
+
+.round-custom input {
+  width: 4.5rem;
+}
+
 .join-block {
   display: flex;
   flex-direction: column;
@@ -561,6 +610,45 @@ textarea {
   font-size: 1.1rem;
   color: var(--muted);
   font-weight: 600;
+}
+
+.tv-round {
+  font-size: 1.1rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.tv-round-picker {
+  margin: 1.25rem 0;
+}
+
+.tv-round-pill {
+  min-width: 3rem;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--text);
+  font-size: 1.25rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tv-round-pill.active {
+  background: rgba(244, 196, 48, 0.2);
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.tv-round-pill:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tv-input.compact {
+  width: 5rem;
+  font-size: 1.25rem;
+  padding: 0.5rem 0.75rem;
 }
 
 .tv-header-right {

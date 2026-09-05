@@ -25,6 +25,7 @@ import {
   type RoomPreview,
 } from './api'
 import { JoinQr } from './qr'
+import { RoundSelector, roundLabel } from './RoundSelector'
 import type { PublicRoom } from './types'
 
 function useCountdown(endsAt: number) {
@@ -403,7 +404,9 @@ export default function App() {
           <header className="play-header">
             <div>
               <span className="code-pill">{room.code}</span>
-              {room.roundIndex > 0 && <span className="round-pill">Runda {room.roundIndex}</span>}
+              {room.roundIndex > 0 && (
+                <span className="round-pill">{roundLabel(room.roundIndex, room.maxRounds)}</span>
+              )}
             </div>
             <button type="button" className="btn link small" onClick={leaveGame}>
               Lämna
@@ -441,6 +444,13 @@ export default function App() {
                   <p className="muted">
                     {room.participantCount}/{room.minParticipants} deltagare
                   </p>
+                  <RoundSelector
+                    maxRounds={room.maxRounds}
+                    disabled={busy}
+                    onChange={() => {
+                      /* room updates via socket */
+                    }}
+                  />
                   <div className="stack">
                     <button
                       type="button"
@@ -458,6 +468,11 @@ export default function App() {
               ) : (
                 <>
                   <p className="lead">Väntar på att {room.hostName} startar…</p>
+                  {room.maxRounds === 0 ? (
+                    <p className="muted">Antal test: tills vi tröttnar</p>
+                  ) : (
+                    <p className="muted">{room.maxRounds} test planerade</p>
+                  )}
                   <ul className="player-list">
                     {room.players.map((p) => (
                       <li key={p.id} className={p.id === room.hostId ? 'host' : ''}>
@@ -609,9 +624,11 @@ export default function App() {
               <Scoreboard room={room} />
               {room.youAreHost && (
                 <div className="stack">
-                  <button type="button" className="btn primary" disabled={busy} onClick={() => act(nextRound)}>
-                    Nästa test
-                  </button>
+                  {room.maxRounds > 0 && room.roundIndex >= room.maxRounds ? null : (
+                    <button type="button" className="btn primary" disabled={busy} onClick={() => act(nextRound)}>
+                      Nästa test
+                    </button>
+                  )}
                   <button type="button" className="btn ghost" disabled={busy} onClick={() => act(endGame)}>
                     Avsluta spelet
                   </button>

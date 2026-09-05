@@ -18,6 +18,7 @@ import {
   type ConnState,
 } from './api'
 import { JoinQr } from './qr'
+import { RoundSelector, roundLabel } from './RoundSelector'
 import type { PublicRoom } from './types'
 
 function useCountdown(endsAt: number) {
@@ -214,7 +215,9 @@ export default function TvApp() {
       <header className="tv-header">
         <div className="tv-header-left">
           <span className="tv-code">{room.code}</span>
-          {room.roundIndex > 0 && <span className="tv-round">Runda {room.roundIndex}</span>}
+          {room.roundIndex > 0 && (
+            <span className="tv-round">{roundLabel(room.roundIndex, room.maxRounds)}</span>
+          )}
         </div>
         <div className="tv-header-right">
           <TvScoreboard room={room} />
@@ -248,6 +251,7 @@ export default function TvApp() {
             <p className="tv-muted">
               {room.participantCount}/{room.minParticipants} krävs för start
             </p>
+            <RoundSelector maxRounds={room.maxRounds} disabled={busy} variant="tv" />
             <button
               type="button"
               className="tv-btn primary large"
@@ -347,9 +351,11 @@ export default function TvApp() {
           <h2 className="tv-subtitle">Totalt</h2>
           <TvScoreboard room={room} />
           <div className="tv-actions">
-            <button type="button" className="tv-btn primary large" disabled={busy} onClick={() => act(nextRound)}>
-              Nästa test
-            </button>
+            {room.maxRounds === 0 || room.roundIndex < room.maxRounds ? (
+              <button type="button" className="tv-btn primary large" disabled={busy} onClick={() => act(nextRound)}>
+                Nästa test
+              </button>
+            ) : null}
             <button type="button" className="tv-btn ghost" disabled={busy} onClick={() => act(endGame)}>
               Avsluta spelet
             </button>

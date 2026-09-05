@@ -1,16 +1,7 @@
-export type ChallengeType = 'speed' | 'creative' | 'subjective' | 'endurance'
-
-export type SubmissionMode = 'draw' | 'text' | 'physical'
-
-export interface Challenge {
-  id: string
-  title: string
-  description: string
-  type: ChallengeType
-  /** Undefined = testledaren avslutar när det är klart */
-  timeLimitSeconds?: number
-  submissionMode?: SubmissionMode
-}
+export type { Challenge, ChallengeType, SubmissionMode } from './challengeTypes.js'
+import type { Challenge, SubmissionMode } from './challengeTypes.js'
+import { generatedChallenges } from './challenges/generated.js'
+import { defaultTimer } from './challenges/timers.js'
 
 export const starterChallenges: Challenge[] = [
   {
@@ -19,7 +10,8 @@ export const starterChallenges: Challenge[] = [
     description:
       'Rita ett storslaget porträtt av testledaren. Haken: Du måste blunda hela tiden. Din tid börjar nu.',
     type: 'creative',
-    timeLimitSeconds: 60,
+    timeLimitSeconds: 180,
+    submissionMode: 'draw',
   },
   {
     id: 'c-002',
@@ -27,13 +19,15 @@ export const starterChallenges: Challenge[] = [
     description:
       'Hämta det största blåa föremålet du kan hitta. Snabbast tillbaka med störst föremål vinner. Din tid börjar nu.',
     type: 'speed',
-    timeLimitSeconds: 45,
+    timeLimitSeconds: 120,
+    submissionMode: 'physical',
   },
   {
     id: 'c-003',
     title: 'Få mig att skratta',
     description: 'Få testledaren att skratta. Den som lyckas snabbast vinner.',
     type: 'speed',
+    submissionMode: 'physical',
   },
   {
     id: 'c-004',
@@ -41,7 +35,8 @@ export const starterChallenges: Challenge[] = [
     description:
       'Rita en så perfekt cirkel som möjligt. Du får inte använda några hjälpmedel. Testledarens dom är slutgiltig.',
     type: 'subjective',
-    timeLimitSeconds: 30,
+    timeLimitSeconds: 90,
+    submissionMode: 'draw',
   },
   {
     id: 'c-005',
@@ -56,7 +51,8 @@ export const starterChallenges: Challenge[] = [
     description:
       'Bygg det högsta tornet av föremål du har inom en meters radie just nu. Du får inte ställa dig upp.',
     type: 'creative',
-    timeLimitSeconds: 60,
+    timeLimitSeconds: 150,
+    submissionMode: 'physical',
   },
   {
     id: 'c-007',
@@ -64,7 +60,8 @@ export const starterChallenges: Challenge[] = [
     description:
       'Hitta på ett nytt smeknamn på personen till vänster om dig. Bäst motivering till namnet vinner. Smeknamnet gäller resten av spelet.',
     type: 'subjective',
-    timeLimitSeconds: 60,
+    timeLimitSeconds: 120,
+    submissionMode: 'text',
   },
   {
     id: 'c-008',
@@ -72,6 +69,7 @@ export const starterChallenges: Challenge[] = [
     description:
       'Gör det absolut mest oväntade ljudet med din egen kropp. Testledaren bedömer vem som var konstigast.',
     type: 'subjective',
+    submissionMode: 'physical',
   },
   {
     id: 'c-009',
@@ -79,7 +77,8 @@ export const starterChallenges: Challenge[] = [
     description:
       'Göm dig för skärmen/testledaren. Den som testledaren hittar (eller ser) SIST vinner.',
     type: 'speed',
-    timeLimitSeconds: 30,
+    timeLimitSeconds: 90,
+    submissionMode: 'physical',
   },
   {
     id: 'c-010',
@@ -87,6 +86,8 @@ export const starterChallenges: Challenge[] = [
     description:
       'Läs upp det senaste SMS:et du tog emot högt, men med rösten av en nyhetsankare som rapporterar en tragedi. Bäst inlevelse vinner.',
     type: 'creative',
+    timeLimitSeconds: 120,
+    submissionMode: 'text',
   },
   {
     id: 'c-011',
@@ -94,7 +95,7 @@ export const starterChallenges: Challenge[] = [
     description:
       'Rita en banan med din icke-dominanta hand. Du får inte byta hand. Testledarens smakdom avgör vem som fick mest fruktig banan.',
     type: 'creative',
-    timeLimitSeconds: 45,
+    timeLimitSeconds: 120,
     submissionMode: 'draw',
   },
   {
@@ -103,7 +104,7 @@ export const starterChallenges: Challenge[] = [
     description:
       'Designa en logotyp för er grupp just nu. En enda grafisk form räcker — men den ska kännas som ett riktigt varumärke.',
     type: 'creative',
-    timeLimitSeconds: 60,
+    timeLimitSeconds: 180,
     submissionMode: 'draw',
   },
   {
@@ -112,7 +113,8 @@ export const starterChallenges: Challenge[] = [
     description:
       'Hämta det rödeste föremålet du kan hitta. Vid oavgjort vinner störst föremål. Din tid börjar nu.',
     type: 'speed',
-    timeLimitSeconds: 40,
+    timeLimitSeconds: 120,
+    submissionMode: 'physical',
   },
   {
     id: 'c-014',
@@ -127,7 +129,7 @@ export const starterChallenges: Challenge[] = [
     description:
       'Hitta på ett nytt politiskt parti för testledaren. Skriv partinamn, slogan och en valaffisch-text (max tre meningar).',
     type: 'subjective',
-    timeLimitSeconds: 90,
+    timeLimitSeconds: 180,
     submissionMode: 'text',
   },
   {
@@ -136,7 +138,7 @@ export const starterChallenges: Challenge[] = [
     description:
       'Skriv en breaking news-rubrik om något du gjorde idag, som om det vore världshändelse. Plus en mening brödtext.',
     type: 'creative',
-    timeLimitSeconds: 60,
+    timeLimitSeconds: 120,
     submissionMode: 'text',
   },
   {
@@ -145,7 +147,7 @@ export const starterChallenges: Challenge[] = [
     description:
       'Skriv en filmrecension (två meningar) av det som hände senaste timmen i ditt liv. Bäst dramatik vinner.',
     type: 'subjective',
-    timeLimitSeconds: 60,
+    timeLimitSeconds: 120,
     submissionMode: 'text',
   },
   {
@@ -154,7 +156,8 @@ export const starterChallenges: Challenge[] = [
     description:
       'Ta det roligaste gruppfotot där testledaren MÅSTE vara med. Visa upp resultatet när du är klar. Testledaren bedömer.',
     type: 'creative',
-    timeLimitSeconds: 45,
+    timeLimitSeconds: 120,
+    submissionMode: 'physical',
   },
   {
     id: 'c-019',
@@ -162,7 +165,7 @@ export const starterChallenges: Challenge[] = [
     description:
       'Rita testledarens ansikte utifrån minnet. Du får inte titta på testledaren under tiden. Din tid börjar nu.',
     type: 'creative',
-    timeLimitSeconds: 60,
+    timeLimitSeconds: 180,
     submissionMode: 'draw',
   },
   {
@@ -171,7 +174,8 @@ export const starterChallenges: Challenge[] = [
     description:
       'Bygg en skulptur av minst tre föremål som "symboliserar testledaren". Motivera muntligt när testledaren bedömer.',
     type: 'creative',
-    timeLimitSeconds: 75,
+    timeLimitSeconds: 150,
+    submissionMode: 'physical',
   },
   {
     id: 'c-021',
@@ -179,7 +183,8 @@ export const starterChallenges: Challenge[] = [
     description:
       'Ta av dig en strumpa (eller skosnöre) snabbast. Strumpan ska vara hel och helt av. Fusk = noll poäng.',
     type: 'speed',
-    timeLimitSeconds: 30,
+    timeLimitSeconds: 90,
+    submissionMode: 'physical',
   },
   {
     id: 'c-022',
@@ -187,6 +192,7 @@ export const starterChallenges: Challenge[] = [
     description:
       'Presentera dig själv som en robot tills testledaren säger stopp. Mest övertygande mekaniska person vinner.',
     type: 'subjective',
+    submissionMode: 'physical',
   },
   {
     id: 'c-023',
@@ -201,7 +207,8 @@ export const starterChallenges: Challenge[] = [
     description:
       'Imitera ett djur — testledaren ska gissa vilket. Bäst imitation vinner, oavgjort går till snabbast gissning.',
     type: 'subjective',
-    timeLimitSeconds: 45,
+    timeLimitSeconds: 120,
+    submissionMode: 'physical',
   },
   {
     id: 'c-025',
@@ -209,16 +216,17 @@ export const starterChallenges: Challenge[] = [
     description:
       'Rita en karta över rummet du är i just nu. Testledaren bedömer vem som hade bäst orienteringskänsla.',
     type: 'creative',
-    timeLimitSeconds: 90,
+    timeLimitSeconds: 180,
     submissionMode: 'draw',
   },
   {
     id: 'c-026',
     title: 'Kuddefortet',
     description:
-      'Bygg det mäktigaste kuddefortet du kan på 45 sekunder. Höjd, stabilitet och drama räknas.',
+      'Bygg det mäktigaste kuddefortet du kan. Höjd, stabilitet och drama räknas.',
     type: 'speed',
-    timeLimitSeconds: 45,
+    timeLimitSeconds: 120,
+    submissionMode: 'physical',
   },
   {
     id: 'c-027',
@@ -226,7 +234,8 @@ export const starterChallenges: Challenge[] = [
     description:
       'Spela upp det dramatiskaste ögonblicket i din vecka som teater. Testledaren bedömer vem som fick flest tårar.',
     type: 'subjective',
-    timeLimitSeconds: 60,
+    timeLimitSeconds: 120,
+    submissionMode: 'physical',
   },
   {
     id: 'c-028',
@@ -241,7 +250,7 @@ export const starterChallenges: Challenge[] = [
     description:
       'Skriv tre meningar till en falsk Wikipedia-artikel om testledaren. Mest trovärdig lögn vinner.',
     type: 'subjective',
-    timeLimitSeconds: 75,
+    timeLimitSeconds: 150,
     submissionMode: 'text',
   },
   {
@@ -250,10 +259,13 @@ export const starterChallenges: Challenge[] = [
     description:
       'Dansa tills testledaren ropar stopp — stå sedan helt still. Den som rör sig minst efter stoppet vinner.',
     type: 'speed',
+    submissionMode: 'physical',
   },
 ]
 
-const challengeById = new Map(starterChallenges.map((c) => [c.id, c]))
+export const allChallenges: Challenge[] = [...starterChallenges, ...generatedChallenges]
+
+const challengeById = new Map(allChallenges.map((c) => [c.id, c]))
 
 export function getChallenge(id: string): Challenge | undefined {
   return challengeById.get(id)
@@ -262,13 +274,16 @@ export function getChallenge(id: string): Challenge | undefined {
 /** How participants submit for this challenge in the app. */
 export function submissionModeFor(challenge: Challenge): SubmissionMode {
   if (challenge.submissionMode) return challenge.submissionMode
-  if (challenge.id === 'c-001' || challenge.id === 'c-004') return 'draw'
-  if (challenge.id === 'c-007' || challenge.id === 'c-010') return 'text'
+  if (challenge.type === 'endurance') return 'physical'
+  if (challenge.description.includes('Rita') || challenge.description.includes('rita')) return 'draw'
+  if (challenge.description.includes('Skriv') || challenge.description.includes('skriv')) return 'text'
   return 'physical'
 }
 
 export function pickNextChallenge(usedIds: string[]): Challenge {
-  const unused = starterChallenges.filter((c) => !usedIds.includes(c.id))
-  const pool = unused.length > 0 ? unused : starterChallenges
+  const unused = allChallenges.filter((c) => !usedIds.includes(c.id))
+  const pool = unused.length > 0 ? unused : allChallenges
   return pool[Math.floor(Math.random() * pool.length)]!
 }
+
+export { defaultTimer }
