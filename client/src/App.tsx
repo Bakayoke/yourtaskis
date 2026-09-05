@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Component, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { DrawCanvas } from './DrawCanvas'
 import {
   backToLobby,
@@ -41,6 +41,36 @@ function formatTime(sec: number) {
   const m = Math.floor(sec / 60)
   const s = sec % 60
   return m > 0 ? `${m}:${s.toString().padStart(2, '0')}` : `${s}s`
+}
+
+class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null as Error | null }
+
+  static getDerivedStateFromError(error: Error) {
+    return { error }
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <main className="panel card">
+          <h2>Något gick fel</h2>
+          <p className="muted">{this.state.error.message}</p>
+          <button
+            type="button"
+            className="btn primary"
+            onClick={() => {
+              clearSession()
+              window.location.reload()
+            }}
+          >
+            Rensa och ladda om
+          </button>
+        </main>
+      )
+    }
+    return this.props.children
+  }
 }
 
 function ConnBadge({ conn }: { conn: ConnState }) {
@@ -119,13 +149,23 @@ export default function App() {
 
   useEffect(() => {
     const session = loadSession()
-    if (!session || screen === 'play') return
-    void rejoinGame(session.code, session.playerId).then((res) => {
-      if (res.ok && res.room) {
-        setRoom(res.room)
-        setScreen('play')
-      }
-    })
+    if (!session) return
+    void rejoinGame(session.code, session.playerId)
+      .then((res) => {
+        if (res.ok && res.room) {
+          setRoom(res.room)
+          setScreen('play')
+        } else {
+          clearSession()
+          setRoom(null)
+          setScreen('home')
+        }
+      })
+      .catch(() => {
+        clearSession()
+        setRoom(null)
+        setScreen('home')
+      })
   }, [])
 
   useEffect(() => {
@@ -210,6 +250,13 @@ export default function App() {
     setScreen('home')
   }
 
+  function resetToHome() {
+    clearSession()
+    setRoom(null)
+    setScreen('home')
+    setError(null)
+  }
+
   function copyCode() {
     if (!room) return
     void navigator.clipboard.writeText(room.code).then(() => {
@@ -221,6 +268,7 @@ export default function App() {
   const hostLayout = room?.youAreHost
 
   return (
+    <ErrorBoundary>
     <div className={`app${hostLayout ? ' host' : ''}`}>
       <div className="backdrop" aria-hidden />
       <ConnBadge conn={conn} />
@@ -323,6 +371,20 @@ export default function App() {
               </button>
             </>
           )}
+        </main>
+      )}
+
+      {screen === 'play' && !room && (
+        <main className="panel card">
+          <h2>Återansluter…</h2>
+          <p className="muted">
+            {conn === 'connected'
+              ? 'Kunde inte hitta din sparade session.'
+              : 'Väntar på anslutning till servern…'}
+          </p>
+          <button type="button" className="btn primary" onClick={resetToHome}>
+            Till startsidan
+          </button>
         </main>
       )}
 
@@ -559,5 +621,6 @@ export default function App() {
         </main>
       )}
     </div>
+    </ErrorBoundary>
   )
 }

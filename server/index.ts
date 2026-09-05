@@ -70,6 +70,7 @@ function resolveCorsOrigin():
     if (
       allowed.has(origin) ||
       origin.endsWith('.up.railway.app') ||
+      origin.endsWith('.workers.dev') ||
       origin.startsWith('http://localhost:')
     ) {
       cb(null, origin)
@@ -83,7 +84,7 @@ const corsOrigin = resolveCorsOrigin()
 
 const io = new Server(httpServer, {
   cors: {
-    origin: ['https://yourtaskis.com', 'https://www.yourtaskis.com', 'http://localhost:5173'],
+    origin: corsOrigin,
     methods: ['GET', 'POST'],
     credentials: true,
   },

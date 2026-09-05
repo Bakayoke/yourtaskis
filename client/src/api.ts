@@ -1,7 +1,8 @@
 import { io, type Socket } from 'socket.io-client'
 import type { PublicRoom, Session } from './types'
 
-const API_BASE = (import.meta.env.VITE_SOCKET_URL || '').replace(/\/$/, '')
+const PRODUCTION_API = 'https://yourtaskis-production.up.railway.app'
+const API_BASE = (import.meta.env.VITE_SOCKET_URL || PRODUCTION_API).replace(/\/$/, '')
 
 let socket: Socket | null = null
 let rejoinInFlight: Promise<{
