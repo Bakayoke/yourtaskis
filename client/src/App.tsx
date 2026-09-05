@@ -110,6 +110,7 @@ export default function App() {
   const [textDraft, setTextDraft] = useState('')
   const [drawDraft, setDrawDraft] = useState('')
   const [banner, setBanner] = useState<string | null>(null)
+  const [savedSession] = useState(() => loadSession())
 
   const countdown = useCountdown(room?.phaseEndsAt ?? 0)
   const stableDrawChange = useCallback((data: string) => setDrawDraft(data), [])
@@ -146,27 +147,6 @@ export default function App() {
     if (!session || session.code !== room.code) return
     void ensureSessionBound()
   }, [conn, screen, room])
-
-  useEffect(() => {
-    const session = loadSession()
-    if (!session) return
-    void rejoinGame(session.code, session.playerId)
-      .then((res) => {
-        if (res.ok && res.room) {
-          setRoom(res.room)
-          setScreen('play')
-        } else {
-          clearSession()
-          setRoom(null)
-          setScreen('home')
-        }
-      })
-      .catch(() => {
-        clearSession()
-        setRoom(null)
-        setScreen('home')
-      })
-  }, [])
 
   useEffect(() => {
     if (room?.status === 'challenge') {
@@ -257,6 +237,30 @@ export default function App() {
     setError(null)
   }
 
+  async function resumeSession() {
+    const session = loadSession()
+    if (!session) return
+    setBusy(true)
+    setError(null)
+    try {
+      const res = await rejoinGame(session.code, session.playerId)
+      if (res.ok && res.room) {
+        setRoom(res.room)
+        setScreen('play')
+      } else {
+        clearSession()
+        setError('Kunde inte återansluta — starta ett nytt spel.')
+        setScreen('home')
+      }
+    } catch (e) {
+      clearSession()
+      setError(e instanceof Error ? e.message : 'Kunde inte återansluta')
+      setScreen('home')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   function copyCode() {
     if (!room) return
     void navigator.clipboard.writeText(room.code).then(() => {
@@ -271,6 +275,7 @@ export default function App() {
     <ErrorBoundary>
     <div className={`app${hostLayout ? ' host' : ''}`}>
       <div className="backdrop" aria-hidden />
+      <div className="content-layer">
       <ConnBadge conn={conn} />
       {banner && <div className="banner">{banner}</div>}
 
@@ -292,6 +297,11 @@ export default function App() {
             <button type="button" className="btn secondary" onClick={() => setScreen('join')}>
               Gå med som deltagare
             </button>
+            {savedSession && (
+              <button type="button" className="btn ghost" disabled={busy} onClick={() => void resumeSession()}>
+                Fortsätt som {savedSession.name}
+              </button>
+            )}
           </div>
         </main>
       )}
@@ -620,6 +630,7 @@ export default function App() {
           )}
         </main>
       )}
+      </div>
     </div>
     </ErrorBoundary>
   )
