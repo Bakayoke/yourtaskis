@@ -1,5 +1,6 @@
 import { Component, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { DrawCanvas } from './DrawCanvas'
+import { useHostScores } from './useHostScores'
 import {
   backToLobby,
   clearSession,
@@ -113,6 +114,7 @@ export default function App() {
   const [drawDraft, setDrawDraft] = useState('')
   const [banner, setBanner] = useState<string | null>(null)
   const [savedSession] = useState(() => loadSession())
+  const { scores: hostScores, recordScore } = useHostScores(room)
 
   const countdown = useCountdown(room?.phaseEndsAt ?? 0)
   const stableDrawChange = useCallback((data: string) => setDrawDraft(data), [])
@@ -569,9 +571,13 @@ export default function App() {
                   .filter((p) => p.id !== room.hostId)
                   .map((p) => {
                     const sub = room.submissions.find((s) => s.playerId === p.id)
+                    const given = hostScores[p.id]
                     return (
-                      <article key={p.id} className="judge-card">
-                        <h3>{p.name}</h3>
+                      <article key={p.id} className={`judge-card${given != null ? ' scored' : ''}`}>
+                        <div className="judge-card-head">
+                          <h3>{p.name}</h3>
+                          {given != null && <span className="score-given">Du gav: {given} poäng</span>}
+                        </div>
                         {sub?.payload.startsWith('data:image') ? (
                           <img src={sub.payload} alt={`Teckning av ${p.name}`} className="submission-img" />
                         ) : sub?.payload === 'ready' ? (
@@ -586,9 +592,15 @@ export default function App() {
                             <button
                               key={n}
                               type="button"
-                              className="score-btn"
+                              className={`score-btn${given === n ? ' selected' : ''}`}
                               disabled={busy}
-                              onClick={() => act(() => scorePlayer(p.id, n))}
+                              onClick={() =>
+                                act(async () => {
+                                  const res = await scorePlayer(p.id, n)
+                                  if (res.ok) recordScore(p.id, n)
+                                  return res
+                                })
+                              }
                             >
                               {n}
                             </button>

@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useFullscreen } from './useFullscreen'
+import { useHostScores } from './useHostScores'
 import {
   backToLobby,
   clearSession,
@@ -65,6 +67,9 @@ export default function TvApp() {
   const [busy, setBusy] = useState(false)
   const [conn, setConn] = useState<ConnState>('connecting')
   const [booting, setBooting] = useState(true)
+  const [showFullscreenPrompt, setShowFullscreenPrompt] = useState(true)
+  const fullscreen = useFullscreen()
+  const { scores: hostScores, recordScore } = useHostScores(room)
 
   const countdown = useCountdown(room?.phaseEndsAt ?? 0)
   const joinLink = useMemo(() => (room ? joinUrl(room.code) : ''), [room])
@@ -73,6 +78,11 @@ export default function TvApp() {
     () => room?.players.filter((p) => p.id !== room.hostId) ?? [],
     [room],
   )
+
+  useEffect(() => {
+    document.body.classList.add('tv-route')
+    return () => document.body.classList.remove('tv-route')
+  }, [])
 
   useEffect(() => {
     setRoomHandler((r) => setRoom(r))
@@ -150,20 +160,57 @@ export default function TvApp() {
     }
   }
 
+  function TvShell({ children }: { children: ReactNode }) {
+    return (
+      <div className={`tv-app${fullscreen.active ? ' is-fullscreen' : ''}`}>
+        {!fullscreen.active && showFullscreenPrompt && (
+          <div className="tv-fullscreen-prompt">
+            <p>TV-läge är bäst i helskärm på stor skärm.</p>
+            <div className="tv-fullscreen-prompt-actions">
+              <button
+                type="button"
+                className="tv-btn primary"
+                onClick={() => void fullscreen.enter().then((ok) => ok && setShowFullscreenPrompt(false))}
+              >
+                Aktivera helskärm
+              </button>
+              <button
+                type="button"
+                className="tv-btn ghost"
+                onClick={() => setShowFullscreenPrompt(false)}
+              >
+                Hoppa över
+              </button>
+            </div>
+          </div>
+        )}
+        <button
+          type="button"
+          className="tv-fullscreen-toggle"
+          onClick={() => void fullscreen.toggle()}
+          title={fullscreen.active ? 'Avsluta helskärm' : 'Helskärm'}
+        >
+          {fullscreen.active ? '⤢' : '⛶'}
+        </button>
+        {children}
+      </div>
+    )
+  }
+
   if (booting) {
     return (
-      <div className="tv-app">
+      <TvShell>
         <main className="tv-panel center">
           <h1 className="tv-title">TV-läge</h1>
           <p className="tv-muted">Ansluter…</p>
         </main>
-      </div>
+      </TvShell>
     )
   }
 
   if (!room) {
     return (
-      <div className="tv-app">
+      <TvShell>
         <main className="tv-panel setup">
           <p className="tv-eyebrow">yourtaskis.com · TV-läge</p>
           <h1 className="tv-title">Testledare på stor skärm</h1>
@@ -188,13 +235,13 @@ export default function TvApp() {
             ← Till mobilvyn
           </a>
         </main>
-      </div>
+      </TvShell>
     )
   }
 
   if (!room.youAreHost) {
     return (
-      <div className="tv-app">
+      <TvShell>
         <main className="tv-panel center">
           <h1 className="tv-title">Endast testledare</h1>
           <p className="tv-muted">{error ?? 'TV-läge kräver att du är testledare.'}</p>
@@ -202,12 +249,12 @@ export default function TvApp() {
             Gå till mobilvyn
           </a>
         </main>
-      </div>
+      </TvShell>
     )
   }
 
   return (
-    <div className="tv-app">
+    <TvShell>
       {conn !== 'connected' && (
         <div className="tv-conn">{conn === 'connecting' ? 'Ansluter…' : 'Frånkopplad'}</div>
       )}
@@ -303,9 +350,13 @@ export default function TvApp() {
           <div className="tv-judge-grid">
             {participants.map((p) => {
               const sub = room.submissions.find((s) => s.playerId === p.id)
+              const given = hostScores[p.id]
               return (
-                <article key={p.id} className="tv-judge-card">
-                  <h2>{p.name}</h2>
+                <article key={p.id} className={`tv-judge-card${given != null ? ' scored' : ''}`}>
+                  <div className="tv-judge-card-head">
+                    <h2>{p.name}</h2>
+                    {given != null && <span className="tv-score-given">Du gav: {given} poäng</span>}
+                  </div>
                   {sub?.payload.startsWith('data:image') ? (
                     <img src={sub.payload} alt={`Teckning av ${p.name}`} className="tv-submission-img" />
                   ) : sub?.payload === 'ready' ? (
@@ -320,9 +371,15 @@ export default function TvApp() {
                       <button
                         key={n}
                         type="button"
-                        className="tv-score-btn"
+                        className={`tv-score-btn${given === n ? ' selected' : ''}`}
                         disabled={busy}
-                        onClick={() => act(() => scorePlayer(p.id, n))}
+                        onClick={() =>
+                          act(async () => {
+                            const res = await scorePlayer(p.id, n)
+                            if (res.ok) recordScore(p.id, n)
+                            return res
+                          })
+                        }
                       >
                         {n}
                       </button>
@@ -372,6 +429,6 @@ export default function TvApp() {
           </button>
         </main>
       )}
-    </div>
+    </TvShell>
   )
 }
