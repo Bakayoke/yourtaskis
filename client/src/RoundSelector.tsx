@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { setMaxRounds } from './api'
+import { normalizeMaxRounds } from './roomUtils'
 
 const PRESETS = [
   { value: 3, label: '3' },
@@ -22,23 +23,25 @@ function isPreset(value: number) {
 }
 
 export function selectedRoundSummary(maxRounds: number) {
-  if (maxRounds === 0) return 'Valt: Tills vi tröttnar'
-  const word = maxRounds === 1 ? 'runda' : 'rundor'
-  return `Valt: ${maxRounds} ${word}`
+  const rounds = normalizeMaxRounds(maxRounds)
+  if (rounds === 0) return 'Valt: Tills vi tröttnar'
+  const word = rounds === 1 ? 'runda' : 'rundor'
+  return `Valt: ${rounds} ${word}`
 }
 
 export function RoundSelector({ maxRounds, disabled, variant = 'mobile', onChange }: Props) {
-  const [custom, setCustom] = useState(!isPreset(maxRounds) && maxRounds > 0)
+  const rounds = normalizeMaxRounds(maxRounds)
+  const [custom, setCustom] = useState(!isPreset(rounds) && rounds > 0)
   const [customValue, setCustomValue] = useState(
-    !isPreset(maxRounds) && maxRounds > 0 ? String(maxRounds) : '20',
+    !isPreset(rounds) && rounds > 0 ? String(rounds) : '20',
   )
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
-    const isCustomValue = !isPreset(maxRounds) && maxRounds > 0
+    const isCustomValue = !isPreset(rounds) && rounds > 0
     setCustom(isCustomValue)
-    if (isCustomValue) setCustomValue(String(maxRounds))
-  }, [maxRounds])
+    if (isCustomValue) setCustomValue(String(rounds))
+  }, [rounds])
 
   async function pick(value: number) {
     if (disabled || busy) return
@@ -46,7 +49,10 @@ export function RoundSelector({ maxRounds, disabled, variant = 'mobile', onChang
     setBusy(true)
     try {
       const res = await setMaxRounds(value)
-      if (res.ok && res.room) onChange?.(res.room.maxRounds)
+      if (res.ok) {
+        const next = normalizeMaxRounds(res.room?.maxRounds ?? value)
+        onChange?.(next)
+      }
     } finally {
       setBusy(false)
     }
@@ -58,7 +64,10 @@ export function RoundSelector({ maxRounds, disabled, variant = 'mobile', onChang
     setBusy(true)
     try {
       const res = await setMaxRounds(n)
-      if (res.ok && res.room) onChange?.(res.room.maxRounds)
+      if (res.ok) {
+        const next = normalizeMaxRounds(res.room?.maxRounds ?? n)
+        onChange?.(next)
+      }
     } finally {
       setBusy(false)
     }
@@ -67,23 +76,23 @@ export function RoundSelector({ maxRounds, disabled, variant = 'mobile', onChang
   const pillClass = variant === 'tv' ? 'tv-round-pill' : 'round-pill-btn'
   const rowClass = variant === 'tv' ? 'tv-round-picker' : 'round-picker'
   const summaryClass = variant === 'tv' ? 'round-selection-summary tv' : 'round-selection-summary'
-  const customApplied = custom && !isPreset(maxRounds) && maxRounds > 0
-  const customLabel = customApplied ? String(maxRounds) : '…'
+  const customApplied = custom && !isPreset(rounds) && rounds > 0
+  const customLabel = customApplied ? String(rounds) : '…'
 
   return (
     <div className={rowClass}>
       <p className={variant === 'tv' ? 'tv-round-label' : 'round-label'}>Antal test</p>
       <p className={summaryClass} aria-live="polite">
-        {selectedRoundSummary(maxRounds)}
+        {selectedRoundSummary(rounds)}
       </p>
       <div className="round-pill-row">
         {PRESETS.map((p) => (
           <button
             key={p.value}
             type="button"
-            className={`${pillClass}${!custom && maxRounds === p.value ? ' active' : ''}`}
+            className={`${pillClass}${!custom && rounds === p.value ? ' active' : ''}`}
             disabled={disabled || busy}
-            aria-pressed={!custom && maxRounds === p.value}
+            aria-pressed={!custom && rounds === p.value}
             title={p.value === 0 ? 'Tills vi tröttnar' : undefined}
             onClick={() => void pick(p.value)}
           >
@@ -113,7 +122,7 @@ export function RoundSelector({ maxRounds, disabled, variant = 'mobile', onChang
               disabled={disabled || busy}
               aria-label="Antal rundor"
               onChange={(e) => setCustomValue(e.target.value)}
-              className={`round-custom-input${variant === 'tv' ? ' tv-input' : ''}${customApplied && customValue === String(maxRounds) ? ' is-applied' : ''}`}
+              className={`round-custom-input${variant === 'tv' ? ' tv-input' : ''}${customApplied && customValue === String(rounds) ? ' is-applied' : ''}`}
             />
           </label>
           <button

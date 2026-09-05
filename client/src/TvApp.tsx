@@ -21,6 +21,7 @@ import {
 } from './api'
 import { JoinQr } from './qr'
 import { RoundSelector, roundLabel } from './RoundSelector'
+import { normalizePublicRoom } from './roomUtils'
 import type { PublicRoom } from './types'
 
 function useCountdown(endsAt: number) {
@@ -85,7 +86,7 @@ export default function TvApp() {
   }, [])
 
   useEffect(() => {
-    setRoomHandler((r) => setRoom(r))
+    setRoomHandler((r) => setRoom(normalizePublicRoom(r)))
     return () => setRoomHandler(null)
   }, [])
 
@@ -107,7 +108,7 @@ export default function TvApp() {
             clearSession()
             setError('TV-läge är bara för testledaren. Använd mobilvyn som deltagare.')
           } else {
-            setRoom(res.room)
+            setRoom(normalizePublicRoom(res.room))
           }
         }
       } catch {
@@ -136,7 +137,7 @@ export default function TvApp() {
         setError(res.error ?? 'Något gick fel')
         return
       }
-      if (res.room) setRoom(res.room)
+      if (res.room) setRoom(normalizePublicRoom(res.room))
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Något gick fel')
     } finally {
@@ -152,7 +153,7 @@ export default function TvApp() {
       const res = await createGame(name.trim())
       if (!res.ok) return setError(res.error)
       saveSession({ code: res.room.code, playerId: res.playerId, name: name.trim() })
-      setRoom(res.room)
+      setRoom(normalizePublicRoom(res.room))
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Kunde inte skapa spel')
     } finally {
@@ -298,7 +299,12 @@ export default function TvApp() {
             <p className="tv-muted">
               {room.participantCount}/{room.minParticipants} krävs för start
             </p>
-            <RoundSelector maxRounds={room.maxRounds} disabled={busy} variant="tv" />
+            <RoundSelector
+              maxRounds={room.maxRounds}
+              disabled={busy}
+              variant="tv"
+              onChange={(maxRounds) => setRoom((r) => (r ? { ...r, maxRounds } : r))}
+            />
             <button
               type="button"
               className="tv-btn primary large"

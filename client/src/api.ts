@@ -1,4 +1,5 @@
 import { io, type Socket } from 'socket.io-client'
+import { normalizePublicRoom } from './roomUtils'
 import type { PublicRoom, Session } from './types'
 
 const PRODUCTION_API = 'https://yourtaskis-production.up.railway.app'
@@ -35,7 +36,7 @@ export function getSocket() {
       void ensureSessionBound()
     })
     socket.on('room', (room: PublicRoom) => {
-      onRoomHandler?.(room)
+      onRoomHandler?.(normalizePublicRoom(room))
     })
   }
 

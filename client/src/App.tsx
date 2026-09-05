@@ -27,6 +27,7 @@ import {
 } from './api'
 import { JoinQr } from './qr'
 import { RoundSelector, roundLabel } from './RoundSelector'
+import { normalizePublicRoom } from './roomUtils'
 import type { PublicRoom } from './types'
 
 function useCountdown(endsAt: number) {
@@ -139,7 +140,7 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    setRoomHandler((r) => setRoom(r))
+    setRoomHandler((r) => setRoom(normalizePublicRoom(r)))
     return () => setRoomHandler(null)
   }, [])
 
@@ -170,7 +171,7 @@ export default function App() {
         setError(res.error ?? 'Något gick fel')
         return
       }
-      if (res.room) setRoom(res.room)
+      if (res.room) setRoom(normalizePublicRoom(res.room))
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Något gick fel')
     } finally {
@@ -186,7 +187,7 @@ export default function App() {
       const res = await createGame(name.trim())
       if (!res.ok) return setError(res.error)
       saveSession({ code: res.room.code, playerId: res.playerId, name: name.trim() })
-      setRoom(res.room)
+      setRoom(normalizePublicRoom(res.room))
       setScreen('play')
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Kunde inte skapa spel')
@@ -219,7 +220,7 @@ export default function App() {
       const res = await joinGame(joinCode.trim().toUpperCase(), name.trim())
       if (!res.ok) return setError(res.error)
       saveSession({ code: res.room.code, playerId: res.playerId, name: name.trim() })
-      setRoom(res.room)
+      setRoom(normalizePublicRoom(res.room))
       setScreen('play')
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Kunde inte gå med')
@@ -249,7 +250,7 @@ export default function App() {
     try {
       const res = await rejoinGame(session.code, session.playerId)
       if (res.ok && res.room) {
-        setRoom(res.room)
+        setRoom(normalizePublicRoom(res.room))
         setScreen('play')
       } else {
         clearSession()
@@ -449,9 +450,7 @@ export default function App() {
                   <RoundSelector
                     maxRounds={room.maxRounds}
                     disabled={busy}
-                    onChange={() => {
-                      /* room updates via socket */
-                    }}
+                    onChange={(maxRounds) => setRoom((r) => (r ? { ...r, maxRounds } : r))}
                   />
                   <div className="stack">
                     <button

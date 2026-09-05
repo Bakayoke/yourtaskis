@@ -467,6 +467,7 @@ export function pruneIdleRooms() {
 }
 
 export function toPublicRoom(room: Room, viewerId: string): PublicRoom {
+  normalizeRoom(room)
   const host = hostOf(room)
   const youAreHost = viewerId === room.hostId
   const parts = participants(room)
