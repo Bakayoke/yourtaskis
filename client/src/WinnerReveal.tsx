@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState, type CSSProperties } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { playWinner } from './gameSounds'
 import type { Ui } from './i18n'
 import type { PublicRoom } from './types'
 
@@ -42,6 +43,17 @@ export function WinnerReveal({ room, ui, tv = false }: { room: PublicRoom; ui: U
 
   const order = phase === 'before' ? sortedBefore : sortedAfter
   const winnerId = sortedAfter[0]?.playerId ?? null
+  const winnerSoundPlayed = useRef(false)
+
+  useEffect(() => {
+    winnerSoundPlayed.current = false
+  }, [room.code, room.roundIndex])
+
+  useEffect(() => {
+    if (phase !== 'winner' || winnerSoundPlayed.current) return
+    winnerSoundPlayed.current = true
+    playWinner()
+  }, [phase])
 
   useEffect(() => {
     const initial = Object.fromEntries(entries.map((e) => [e.playerId, e.before]))

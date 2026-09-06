@@ -30,6 +30,7 @@ import {
 import { JoinQr } from './qr'
 import { RoundSelector, roundLabel } from './RoundSelector'
 import { normalizePublicRoom } from './roomUtils'
+import { useChallengeTimerSound } from './useChallengeTimerSound'
 import type { PublicRoom } from './types'
 
 function useCountdown(endsAt: number) {
@@ -87,6 +88,12 @@ export default function TvApp() {
 
   const countdown = useCountdown(room?.phaseEndsAt ?? 0)
   const joinLink = useMemo(() => (room ? joinUrl(room.code) : ''), [room])
+
+  useChallengeTimerSound(
+    countdown,
+    room?.status === 'challenge' && room.challenge?.timeLimitSeconds != null,
+    room?.roundIndex ?? 0,
+  )
 
   const participants = useMemo(
     () => room?.players.filter((p) => p.id !== room.hostId) ?? [],

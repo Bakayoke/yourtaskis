@@ -1616,3 +1616,42 @@ body.tv-route #root {
   font-size: 0.85rem;
   padding: 0.25rem 0.5rem;
 }
+
+.how-it-works {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+  width: 100%;
+}
+
+.how-it-works h2 {
+  margin: 0 0 1rem;
+  font-size: 1.15rem;
+  font-family: var(--font-display);
+  color: var(--brand);
+}
+
+.how-it-works ol {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.how-it-works li {
+  color: var(--muted);
+  line-height: 1.45;
+  padding-left: 0.25rem;
+}
+
+.install-hint {
+  margin-top: 1.25rem;
+  font-size: 0.9rem;
+}
+
+.results-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}

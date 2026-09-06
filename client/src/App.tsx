@@ -5,8 +5,12 @@ import { WinnerReveal } from './WinnerReveal'
 import { SisterGames } from './SisterGames'
 import { LanguageToggle } from './LanguageToggle'
 import { PendingRoundBanner, ReconnectBanner } from './ReconnectBanner'
+import { HowItWorks } from './HowItWorks'
 import { fill, loadLanguage, rememberLanguage, t, type Lang } from './i18n'
 import { formatError } from './translateError'
+import { usePageMeta } from './usePageMeta'
+import { useChallengeTimerSound } from './useChallengeTimerSound'
+import { copyResults, shareResults } from './shareResults'
 import {
   backToLobby,
   clearSession,
@@ -126,11 +130,25 @@ export default function App() {
   const [textDraft, setTextDraft] = useState('')
   const [drawDraft, setDrawDraft] = useState('')
   const [banner, setBanner] = useState<string | null>(null)
+  const [resultsMsg, setResultsMsg] = useState<string | null>(null)
   const [savedSession] = useState(() => loadSession())
   const { scores: hostScores, recordScore } = useHostScores(room)
 
   const countdown = useCountdown(room?.phaseEndsAt ?? 0)
   const stableDrawChange = useCallback((data: string) => setDrawDraft(data), [])
+  const metaJoinCode = useMemo(() => {
+    const fromState = joinCode.trim().toUpperCase()
+    if (fromState.length === 4) return fromState
+    const fromUrl = new URLSearchParams(window.location.search).get('join')?.toUpperCase().trim()
+    return fromUrl?.length === 4 ? fromUrl : null
+  }, [joinCode])
+
+  usePageMeta(lang, metaJoinCode)
+  useChallengeTimerSound(
+    countdown,
+    room?.status === 'challenge' && room.challenge?.timeLimitSeconds != null,
+    room?.roundIndex ?? 0,
+  )
 
   useEffect(() => {
     rememberLanguage(lang)
@@ -334,6 +352,21 @@ export default function App() {
     })
   }
 
+  async function handleCopyResults() {
+    if (!room) return
+    const ok = await copyResults(room, ui)
+    setResultsMsg(ok ? ui.resultsCopied : ui.resultsShareFailed)
+    window.setTimeout(() => setResultsMsg(null), 2500)
+  }
+
+  async function handleShareResults() {
+    if (!room) return
+    const res = await shareResults(room, ui)
+    if (res === 'shared') return
+    setResultsMsg(res === 'copied' ? ui.resultsCopied : ui.resultsShareFailed)
+    window.setTimeout(() => setResultsMsg(null), 2500)
+  }
+
   const hostLayout = room?.youAreHost
 
   return (
@@ -368,6 +401,8 @@ export default function App() {
               </button>
             )}
           </div>
+          <HowItWorks ui={ui} />
+          <p className="muted install-hint">{ui.installHint}</p>
           <SisterGames ui={ui} />
         </main>
       )}
@@ -753,6 +788,15 @@ export default function App() {
           {room.status === 'finished' && (
             <section className="card">
               <h2>{ui.gameOver}</h2>
+              <div className="results-actions">
+                <button type="button" className="btn secondary" onClick={() => void handleCopyResults()}>
+                  {ui.copyResults}
+                </button>
+                <button type="button" className="btn secondary" onClick={() => void handleShareResults()}>
+                  {ui.shareResults}
+                </button>
+              </div>
+              {resultsMsg && <p className="ok-msg">{resultsMsg}</p>}
               <WinnerReveal room={room} ui={ui} />
               {room.youAreHost ? (
                 <button type="button" className="btn primary" disabled={busy} onClick={() => act(backToLobby)}>

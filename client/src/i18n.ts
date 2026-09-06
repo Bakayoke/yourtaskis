@@ -139,6 +139,16 @@ const sv = {
   scourgebornCta: 'Öppna scourgeborn.com →',
   partypathsPitch: 'Hellre brädspel på soffan? Samla laget på Party Paths.',
   partypathsCta: 'Öppna partypaths.com →',
+  howItWorksTitle: 'Så funkar det',
+  howStep1: 'Testledaren skapar ett spel och delar koden eller QR-koden.',
+  howStep2: 'Deltagarna går med på mobilen med samma kod.',
+  howStep3: 'Testledaren läser upp varje test — du utför och lämnar in.',
+  howStep4: 'Testledaren ger 1–5 poäng. Flest poäng vinner.',
+  copyResults: 'Kopiera resultat',
+  shareResults: 'Dela resultat',
+  resultsCopied: 'Resultat kopierat!',
+  resultsShareFailed: 'Kunde inte dela resultat',
+  installHint: 'Lägg till på hemskärmen för snabb åtkomst vid nästa fest.',
 } as const
 
 const en: Record<keyof typeof sv, string> = {
@@ -280,6 +290,16 @@ const en: Record<keyof typeof sv, string> = {
   scourgebornCta: 'Open scourgeborn.com →',
   partypathsPitch: 'Prefer a couch board game? Gather the crew on Party Paths.',
   partypathsCta: 'Open partypaths.com →',
+  howItWorksTitle: 'How it works',
+  howStep1: 'The host creates a game and shares the code or QR.',
+  howStep2: 'Players join on their phones with the same code.',
+  howStep3: 'The host reads each challenge — you perform and submit.',
+  howStep4: 'The host scores 1–5. Highest total wins.',
+  copyResults: 'Copy results',
+  shareResults: 'Share results',
+  resultsCopied: 'Results copied!',
+  resultsShareFailed: 'Could not share results',
+  installHint: 'Add to your home screen for quick access at the next party.',
 }
 
 export type Ui = typeof sv
