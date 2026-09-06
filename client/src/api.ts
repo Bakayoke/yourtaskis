@@ -56,6 +56,13 @@ export function getSocket() {
     socket.on('disconnect', () => {
       boundSessionKey = null
     })
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && socket?.connected) {
+          void ensureSessionBound()
+        }
+      })
+    }
     socket.on('room', (room: PublicRoom) => {
       onRoomHandler?.(normalizePublicRoom(room))
     })
@@ -127,6 +134,7 @@ export async function ensureSessionBound(
       last = await rejoinGame(session.code, session.playerId)
       if (last.ok && last.room) {
         markSessionBound(session.code, session.playerId)
+        onRoomHandler?.(normalizePublicRoom(last.room))
         return last
       }
       const err = last.error ?? ''

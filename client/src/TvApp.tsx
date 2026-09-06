@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useFullscreen } from './useFullscreen'
 import { useHostScores } from './useHostScores'
+import { WinnerReveal } from './WinnerReveal'
 import {
   backToLobby,
   clearSession,
@@ -430,7 +431,7 @@ export default function TvApp() {
       {room.status === 'finished' && (
         <main className="tv-main scores">
           <h1 className="tv-section-title">Spelet är slut!</h1>
-          <TvScoreboard room={room} />
+          <WinnerReveal room={room} tv />
           <button type="button" className="tv-btn primary large" disabled={busy} onClick={() => act(backToLobby)}>
             Tillbaka till lobby
           </button>

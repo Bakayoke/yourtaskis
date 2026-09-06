@@ -12,7 +12,8 @@ const makeId = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12)
 
 export const MIN_PARTICIPANTS = 2
 export const DEFAULT_MAX_ROUNDS = 5
-const DISCONNECT_GRACE_MS = 60_000
+/** Lobby / after game — long enough to grab a snack and reopen the browser. */
+const DISCONNECT_GRACE_MS = 20 * 60 * 1000
 const HOST_TRANSFER_AFTER_MS = 90_000
 const ROOM_IDLE_MS = 12 * 60 * 60 * 1000
 
@@ -221,10 +222,21 @@ export function joinRoom(code: string, name: string, socketId: string) {
   const trimmed = name.trim()
   if (!trimmed) return { error: 'Ange ett namn' as const }
 
-  const existing = room.players.find(
+  const existingConnected = room.players.find(
     (p) => p.name.toLowerCase() === trimmed.toLowerCase() && p.connected,
   )
-  if (existing) return { error: 'Namnet är redan taget' as const }
+  if (existingConnected) return { error: 'Namnet är redan taget' as const }
+
+  const reclaim = room.players.find(
+    (p) => p.name.toLowerCase() === trimmed.toLowerCase() && !p.connected,
+  )
+  if (reclaim) {
+    cancelDisconnectTimer(room.code, reclaim.id)
+    reclaim.connected = true
+    socketToPlayer.set(socketId, { code: room.code, playerId: reclaim.id })
+    touch(room)
+    return { room, playerId: reclaim.id }
+  }
 
   const playerId = makeId()
   room.players.push({ id: playerId, name: trimmed, connected: true, score: 0 })
@@ -267,6 +279,9 @@ export function handleDisconnect(socketId: string) {
     if (!r) return
     const p = r.players.find((x) => x.id === player.id)
     if (!p || p.connected) return
+
+    // Keep roster intact while a game is running — phone sleep shouldn't drop players.
+    if (r.status !== 'lobby' && r.status !== 'finished') return
 
     if (p.id === r.hostId) {
       const next = r.players.find((x) => x.id !== r.hostId && x.connected)

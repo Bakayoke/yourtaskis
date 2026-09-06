@@ -1,6 +1,7 @@
 import { Component, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { DrawCanvas } from './DrawCanvas'
 import { useHostScores } from './useHostScores'
+import { WinnerReveal } from './WinnerReveal'
 import {
   backToLobby,
   clearSession,
@@ -652,7 +653,7 @@ export default function App() {
           {room.status === 'finished' && (
             <section className="card">
               <h2>Spelet är slut!</h2>
-              <Scoreboard room={room} />
+              <WinnerReveal room={room} />
               {room.youAreHost ? (
                 <button type="button" className="btn primary" disabled={busy} onClick={() => act(backToLobby)}>
                   Tillbaka till lobby

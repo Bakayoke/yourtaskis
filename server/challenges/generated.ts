@@ -2081,5 +2081,801 @@ export const generatedChallenges: Challenge[] = [
     "type": "creative",
     "timeLimitSeconds": 120,
     "submissionMode": "text"
+  },
+  {
+    "id": "c-301",
+    "title": "Familjeporträtt",
+    "description": "Rita hela sällskapet som en tecknad serie. Testledaren väljer bästa karikatyr. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 180,
+    "submissionMode": "draw"
+  },
+  {
+    "id": "c-302",
+    "title": "Blundteckning",
+    "description": "Rita testledarens husdjur (påhittat går) utan att titta på papperet. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 180,
+    "submissionMode": "draw"
+  },
+  {
+    "id": "c-303",
+    "title": "En linje",
+    "description": "Rita testledaren med ett enda obrutet streck. Minst rörigt vinner. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 180,
+    "submissionMode": "draw"
+  },
+  {
+    "id": "c-304",
+    "title": "Left hand",
+    "description": "Rita en blomma med fel hand. Mest symmetrisk vinner. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 180,
+    "submissionMode": "draw"
+  },
+  {
+    "id": "c-305",
+    "title": "Logo",
+    "description": "Designa en logotyp för kvällens test. Mest säljbar vinner. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 180,
+    "submissionMode": "draw"
+  },
+  {
+    "id": "c-306",
+    "title": "Skäggteori",
+    "description": "Rita testledaren med ett episk skägg de inte har. Mest majestätiskt vinner. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 180,
+    "submissionMode": "draw"
+  },
+  {
+    "id": "c-307",
+    "title": "Museum",
+    "description": "Rita ett föremål i rummet som om det vore en dyr konstinstallation. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 180,
+    "submissionMode": "draw"
+  },
+  {
+    "id": "c-308",
+    "title": "Albumomslag",
+    "description": "Rita omslaget till testledarens debutalbum. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 180,
+    "submissionMode": "draw"
+  },
+  {
+    "id": "c-309",
+    "title": "Instruktionsmanual",
+    "description": "Rita en steg-för-steg-guide till att göra te. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 180,
+    "submissionMode": "draw"
+  },
+  {
+    "id": "c-310",
+    "title": "Karta",
+    "description": "Rita en skattkarta till kylskåpet. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 180,
+    "submissionMode": "draw"
+  },
+  {
+    "id": "c-311",
+    "title": "Smeknamn 2",
+    "description": "Hitta på ett smeknamn för personen till höger. Mest träffande vinner. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-312",
+    "title": "Recension",
+    "description": "Skriv en recension av testledarens senaste outfit (1–5 stjärnor). Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-313",
+    "title": "Rubrik",
+    "description": "Skriv en clickbait-rubrik om det som hände idag. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-314",
+    "title": "Mantra",
+    "description": "Skriv ett mantra testledaren borde säga varje morgon. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-315",
+    "title": "Brev",
+    "description": "Skriv ett kort brev till ditt framtida jag efter den här kvällen. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-316",
+    "title": "Regler",
+    "description": "Skriv tre absurda regler för ett nytt hemmatest. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-317",
+    "title": "Övertalning",
+    "description": "Skriv två meningar som övertygar testledaren att ge dig poäng. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-318",
+    "title": "Rim",
+    "description": "Skriv ett rim om något i rummet. Mest genialt vinner. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-319",
+    "title": "Fortsätt meningen",
+    "description": "Fortsätt: \"Det värsta som kan hända på en fredag är…\" Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-320",
+    "title": "SMS till chefen",
+    "description": "Skriv ett SMS du ALDRIG skulle skicka till chefen — men gör det övertygande. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-321",
+    "title": "Skrattgaranti",
+    "description": "Få testledaren att skratta. Först vinner. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-322",
+    "title": "Ögonkontakt",
+    "description": "Håll ögonkontakt med testledaren i 20 sekunder utan att blinka först. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-323",
+    "title": "Tyst disco",
+    "description": "Dansa i 30 sekunder utan att göra ett enda ljud. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-324",
+    "title": "Papegoja",
+    "description": "Upprepa exakt det testledaren säger — med samma ton — i 15 sekunder. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-325",
+    "title": "Staty 2",
+    "description": "Stå som en staty medan testledaren går runt dig och tittar misstänksamt. Din tid börjar nu.",
+    "type": "endurance",
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-326",
+    "title": "Balans",
+    "description": "Balansera tre föremål på huvudet. Längst utan att tappa vinner. Din tid börjar nu.",
+    "type": "endurance",
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-327",
+    "title": "Ordkedja",
+    "description": "Säg ord som börjar på sista bokstaven i föregående ord. Sista som fastnar vinner. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-328",
+    "title": "Mime",
+    "description": "Mima att du öppnar en osynlig dörr — testledaren ska gissa vad som är bakom. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-329",
+    "title": "Nyhetsflash",
+    "description": "Rapportera live från vardagsrummet som en nyhetsreporter. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-330",
+    "title": "Opera",
+    "description": "Sjung testledarens namn som en operasångare. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 150,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-331",
+    "title": "Rap intro",
+    "description": "Gör en 10-sekunders rap-intro om dig själv. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 150,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-332",
+    "title": "Kunglig hälsning",
+    "description": "Hälsa på testledaren som om de vore kunglighet. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-333",
+    "title": "Tidningsfoto",
+    "description": "Posera för ett tidningsfoto efter en påhittad skandal. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-334",
+    "title": "Reality-klipp",
+    "description": "Spela upp dramat från när någon tog sista biten tårta. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-335",
+    "title": "Infomercial",
+    "description": "Sälj ett vardagligt föremål i rummet som om det kostade en miljon. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-336",
+    "title": "Nature documentary",
+    "description": "Kommentera testledaren som David Attenborough. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-337",
+    "title": "Weather report",
+    "description": "Ge en väderrapport för stämningen i rummet. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-338",
+    "title": "Translator",
+    "description": "Översätt testledarens senaste mening till sura farbror-svenska. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-339",
+    "title": "Motivation",
+    "description": "Ge testledaren en peptalk som om de ska in i en boxningsmatch. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-340",
+    "title": "Röd matta",
+    "description": "Gör en röd-matta-entré från dörren till testledaren. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-341",
+    "title": "Pillow fort",
+    "description": "Bygg en kuddfästning på 60 sekunder. Mest imponerande vinner. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-342",
+    "title": "Pappersflyg",
+    "description": "Vik ett pappersflygplan som flyger längst. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-343",
+    "title": "Tårchallenge",
+    "description": "Försök få fram en tår på 10 sekunder (skådespeleri räknas). Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-344",
+    "title": "Accent",
+    "description": "Läs upp testledarens senaste instruktion med en ny accent. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 150,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-345",
+    "title": "Robot 2",
+    "description": "Rör dig som en robot tills testledaren säger stopp. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-346",
+    "title": "Zombie",
+    "description": "Gå som en zombie mot testledaren — mest skrämmande vinner. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-347",
+    "title": "Ninja",
+    "description": "Ta dig från din plats till testledaren så tyst du kan. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-348",
+    "title": "Magiker",
+    "description": "Gör ett \"trick\" med ett föremål i rummet. Mest magiskt vinner. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 150,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-349",
+    "title": "Viking",
+    "description": "Hälsa testledaren som en viking som kommit hem från plundring. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-350",
+    "title": "Alien",
+    "description": "Förklara jordens sedvänjor för testledaren som ett utomjordiskt väsen. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-351",
+    "title": "Gissning",
+    "description": "Gissa testledarens favoritgodis. Närmast vinner. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-352",
+    "title": "Minnesbild",
+    "description": "Beskriv testledarens outfit i detalj — utan att titta. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-353",
+    "title": "Emoji-berättelse",
+    "description": "Berätta hur kvällen började med minst fem emojis (skriv dem). Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-354",
+    "title": "Film pitch",
+    "description": "Pitcha en film baserad på testledarens personlighet. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-355",
+    "title": "Spelidé",
+    "description": "Beskriv ett brädspel testledaren skulle vara bra på. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-356",
+    "title": "Superkraft",
+    "description": "Välj en superkraft åt testledaren och motivera. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-357",
+    "title": "Skvaller",
+    "description": "Skriv en påhittad skvallerrubrik om någon i rummet (snällt!). Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-358",
+    "title": "Middagsmeny",
+    "description": "Planera en trerättersmiddag testledaren skulle älska. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-359",
+    "title": "Bucket list",
+    "description": "Skriv tre saker testledaren borde göra innan året är slut. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-360",
+    "title": "Horoskop",
+    "description": "Skriv testledarens horoskop för kvällen. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-361",
+    "title": "Reklam",
+    "description": "Skriv en 15-sekunders reklamtext för testledaren som produkt. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-362",
+    "title": "Podcast",
+    "description": "Ge testledaren ett podcastnamn och beskriv första avsnittet. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-363",
+    "title": "Hemlighet",
+    "description": "Viska en (påhittad) hemlighet om testledaren till gruppen. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-364",
+    "title": "Compliment battle",
+    "description": "Ge testledaren det bästa komplimangen du kan — utan att upprepa någon annan. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-365",
+    "title": "Roast light",
+    "description": "Säg något snällt-men-petigt om testledaren med ett leende. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-366",
+    "title": "High five",
+    "description": "Ge testledaren den mest överdrivna high five du kan. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-367",
+    "title": "Fist bump",
+    "description": "Inspirera till världens smidigaste fist bump. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-368",
+    "title": "Handskakning",
+    "description": "Gör en alldeles för formell handskakning med testledaren. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-369",
+    "title": "Namn på nytt",
+    "description": "Döp om testledaren till något episk — och förklara varför. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-370",
+    "title": "Walk of shame",
+    "description": "Gör en \"walk of shame\" från kylskåpet till testledaren. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-371",
+    "title": "Victory lap",
+    "description": "Ta en segervarv runt rummet som om du redan vunnit. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-372",
+    "title": "Slow walk",
+    "description": "Gå i slow motion från dörren till testledaren med dramatisk musik (nynna). Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-373",
+    "title": "Hide item",
+    "description": "Göm ett föremål så testledaren har svårt att hitta det på 30 sekunder. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-374",
+    "title": "Find item",
+    "description": "Hitta något i rummet som börjar på samma bokstav som ditt namn. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-375",
+    "title": "Twin item",
+    "description": "Hitta ett föremål som \"matchar\" testledarens energi. Motivera. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-376",
+    "title": "Worst gift",
+    "description": "Presentera det sämsta tänkbara julklappet till testledaren. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-377",
+    "title": "Best gift",
+    "description": "Presentera det bästa tänkbara julklappet — med ett föremål i rummet. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-378",
+    "title": "Auction 2",
+    "description": "Auktionera ut din plats i soffan. Mest övertygande bud vinner. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 90,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-379",
+    "title": "Charades",
+    "description": "Spela charader — testledaren ska gissa på 60 sekunder. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-380",
+    "title": "Reverse charades",
+    "description": "Alla utom en ska gissa — den ene mima. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-381",
+    "title": "Sound quiz",
+    "description": "Imitera ett djur — testledaren gissar. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-382",
+    "title": "Instrument",
+    "description": "Imitera ett instrument med bara munnen. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 150,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-383",
+    "title": "Beatbox",
+    "description": "Gör 10 sekunder beatbox. Mest rytmiskt vinner. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 150,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-384",
+    "title": "Whistle",
+    "description": "Vissla en melodi testledaren ska gissa. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-385",
+    "title": "Humming",
+    "description": "Nynna en låt — testledaren gissar titeln. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-386",
+    "title": "One word",
+    "description": "Beskriv testledaren med exakt ett ord — och förklara. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-387",
+    "title": "Two truths",
+    "description": "Skriv två sanna och en falsk sak om dig — testledaren gissar lögnen. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-388",
+    "title": "Would you rather",
+    "description": "Ställ en \"skulle du hellre\"-fråga till testledaren och svara själv. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-389",
+    "title": "Hot take",
+    "description": "Skriv en kontroversiell matåsikt och försvara den. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-390",
+    "title": "Unpopular opinion",
+    "description": "Dela en impopulär åsikt om något harmlöst. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-391",
+    "title": "Complaint letter",
+    "description": "Skriv ett klagomål till universum om något smått. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-392",
+    "title": "Thank you note",
+    "description": "Skriv ett tackkort till testledaren för kvällen. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-393",
+    "title": "Fortune cookie",
+    "description": "Skriv en fortune cookie-text för testledaren. Din tid börjar nu.",
+    "type": "subjective",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-394",
+    "title": "Spell",
+    "description": "Skapa en trollformel testledaren kan använda imorgon bitti. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-395",
+    "title": "Spell name",
+    "description": "Döp en magisk besvärjelse efter testledaren. Din tid börjar nu.",
+    "type": "creative",
+    "timeLimitSeconds": 120,
+    "submissionMode": "text"
+  },
+  {
+    "id": "c-396",
+    "title": "Plank 2",
+    "description": "Planka medan du säger något uppmuntrande till testledaren. Din tid börjar nu.",
+    "type": "endurance",
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-397",
+    "title": "Wall sit 2",
+    "description": "Vägg-sits medan du håller ögonkontakt med testledaren. Din tid börjar nu.",
+    "type": "endurance",
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-398",
+    "title": "Toe touch",
+    "description": "Rör tårna utan att böja knäna — eller visa hur nära du kommer. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-399",
+    "title": "Jumping jacks",
+    "description": "Gör flest jumping jacks på 20 sekunder. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
+  },
+  {
+    "id": "c-400",
+    "title": "Push ups",
+    "description": "Gör flest armhävningar (på knä räknas) på 20 sekunder. Din tid börjar nu.",
+    "type": "speed",
+    "timeLimitSeconds": 120,
+    "submissionMode": "physical"
   }
 ]
