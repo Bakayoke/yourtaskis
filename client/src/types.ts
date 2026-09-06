@@ -8,6 +8,7 @@ export type Player = {
   name: string
   connected: boolean
   score: number
+  pendingRound?: boolean
 }
 
 export type PublicChallenge = {
@@ -43,6 +44,7 @@ export type PublicRoom = {
   roundScores: { playerId: string; name: string; points: number }[] | null
   scores: { playerId: string; name: string; score: number }[]
   youAreHost: boolean
+  youPendingRound: boolean
   minParticipants: number
 }
 

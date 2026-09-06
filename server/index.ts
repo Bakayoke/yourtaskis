@@ -30,6 +30,7 @@ import {
   onPhaseTimeout,
   previewRoom,
   pruneIdleRooms,
+  removePlayer,
   reconnectSocket,
   reloadRoomFromStore,
   restoreRooms,
@@ -300,6 +301,25 @@ io.on('connection', (socket) => {
     } catch (e) {
       console.error(e)
       ack?.({ ok: false, error: 'Kunde inte avsluta lobbyn' })
+    }
+  })
+
+  socket.on('removePlayer', (payload, ack) => {
+    try {
+      const binding = bindingFrom(payload)
+      if (!binding) return ack?.({ ok: false, error: 'Inte i ett rum' })
+      const targetId = String(payload?.targetId ?? '')
+      const result = removePlayer(binding.code, binding.playerId, targetId)
+      if ('error' in result) return ack?.({ ok: false, error: result.error })
+      for (const socketId of result.kickedSocketIds) {
+        const s = io.of('/').sockets.get(socketId)
+        s?.emit('kicked')
+      }
+      ack?.({ ok: true, room: toPublicRoom(result.room, binding.playerId) })
+      broadcastRoom(result.room.code)
+    } catch (e) {
+      console.error(e)
+      ack?.({ ok: false, error: 'Kunde inte ta bort deltagare' })
     }
   })
 

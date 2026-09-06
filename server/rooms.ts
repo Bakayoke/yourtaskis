@@ -67,8 +67,18 @@ function participants(room: Room) {
   return room.players.filter((p) => p.id !== room.hostId)
 }
 
+function activeParticipants(room: Room) {
+  return participants(room).filter((p) => !p.pendingRound)
+}
+
 function participantCount(room: Room) {
-  return participants(room).length
+  return activeParticipants(room).length
+}
+
+function activatePendingPlayers(room: Room) {
+  for (const p of room.players) {
+    if (p.pendingRound) p.pendingRound = false
+  }
 }
 
 function normalizeRoom(room: Room) {
@@ -98,7 +108,7 @@ function hasSubmitted(room: Room, playerId: string) {
 }
 
 function allParticipantsSubmitted(room: Room) {
-  const parts = participants(room)
+  const parts = activeParticipants(room)
   if (parts.length === 0) return false
   return parts.every((p) => hasSubmitted(room, p.id))
 }
@@ -215,9 +225,6 @@ export function createRoom(hostName: string, socketId: string) {
 export function joinRoom(code: string, name: string, socketId: string) {
   const room = getRoom(code)
   if (!room) return { error: 'Hittade inget spel med den koden' as const }
-  if (room.status !== 'lobby') {
-    return { error: 'Spelet har redan startat — vänta till nästa omgång' as const }
-  }
 
   const trimmed = name.trim()
   if (!trimmed) return { error: 'Ange ett namn' as const }
@@ -238,8 +245,15 @@ export function joinRoom(code: string, name: string, socketId: string) {
     return { room, playerId: reclaim.id }
   }
 
+  const joiningMidGame = room.status !== 'lobby'
   const playerId = makeId()
-  room.players.push({ id: playerId, name: trimmed, connected: true, score: 0 })
+  room.players.push({
+    id: playerId,
+    name: trimmed,
+    connected: true,
+    score: 0,
+    pendingRound: joiningMidGame,
+  })
   socketToPlayer.set(socketId, { code: room.code, playerId })
   touch(room)
   return { room, playerId }
@@ -339,6 +353,7 @@ export function startGame(code: string, playerId: string) {
   }
 
   room.roundIndex = 1
+  activatePendingPlayers(room)
   const next = pickNextChallenge(room.usedChallengeIds)
   beginChallenge(room, next.id)
   touch(room)
@@ -361,6 +376,9 @@ export function submitResponse(code: string, playerId: string, payload: string) 
   if (!room) return { error: 'Rummet finns inte' as const }
   if (isHost(room, playerId)) return { error: 'Testledaren deltar inte i testet' as const }
   if (room.status !== 'challenge') return { error: 'Inget aktivt test' as const }
+
+  const player = room.players.find((p) => p.id === playerId)
+  if (player?.pendingRound) return { error: 'Du går med från nästa test' as const }
 
   const challenge = room.currentChallengeId ? getChallenge(room.currentChallengeId) : null
   if (!challenge) return { error: 'Inget test aktivt' as const }
@@ -399,11 +417,12 @@ export function scorePlayer(code: string, playerId: string, targetId: string, po
 
   const target = room.players.find((p) => p.id === targetId)
   if (!target) return { error: 'Deltagaren hittades inte' as const }
+  if (target.pendingRound) return { error: 'Deltagaren går med nästa runda' as const }
 
   const pts = Math.max(1, Math.min(5, Math.round(points)))
   room.roundScores[targetId] = pts
 
-  const parts = participants(room)
+  const parts = activeParticipants(room)
   const allScored = parts.every((p) => room.roundScores[p.id] != null)
   if (allScored) {
     moveToScores(room)
@@ -421,6 +440,7 @@ export function nextRound(code: string, playerId: string) {
   if (roundsComplete(room)) return { error: 'Alla rundor är klara' as const }
 
   room.roundIndex += 1
+  activatePendingPlayers(room)
   const next = pickNextChallenge(room.usedChallengeIds)
   beginChallenge(room, next.id)
   touch(room)
@@ -439,8 +459,35 @@ export function backToLobby(code: string, playerId: string) {
   room.roundScores = {}
   room.roundIndex = 0
   room.usedChallengeIds = []
+  for (const p of room.players) {
+    p.pendingRound = false
+  }
   touch(room)
   return room
+}
+
+export function removePlayer(code: string, hostId: string, targetId: string) {
+  const room = getRoom(code)
+  if (!room) return { error: 'Rummet finns inte' as const }
+  if (!isHost(room, hostId)) return { error: 'Bara testledaren kan ta bort deltagare' as const }
+  if (room.status !== 'lobby') return { error: 'Kan bara ta bort deltagare i lobbyn' as const }
+  if (targetId === room.hostId) return { error: 'Kan inte ta bort testledaren' as const }
+
+  const target = room.players.find((p) => p.id === targetId)
+  if (!target) return { error: 'Deltagaren hittades inte' as const }
+
+  cancelDisconnectTimer(code, targetId)
+  const kickedSocketIds: string[] = []
+  for (const [socketId, binding] of socketToPlayer.entries()) {
+    if (binding.code === code && binding.playerId === targetId) {
+      kickedSocketIds.push(socketId)
+      socketToPlayer.delete(socketId)
+    }
+  }
+
+  room.players = room.players.filter((p) => p.id !== targetId)
+  touch(room)
+  return { room, kickedSocketIds }
 }
 
 export function closeLobby(code: string, playerId: string) {
@@ -507,7 +554,9 @@ export function toPublicRoom(room: Room, viewerId: string): PublicRoom {
   normalizeRoom(room)
   const host = hostOf(room)
   const youAreHost = viewerId === room.hostId
+  const viewer = room.players.find((p) => p.id === viewerId)
   const parts = participants(room)
+  const active = activeParticipants(room)
 
   let submissions = room.submissions.map((s) => ({
     playerId: s.playerId,
@@ -524,15 +573,14 @@ export function toPublicRoom(room: Room, viewerId: string): PublicRoom {
 
   const roundScores =
     room.status === 'scores' || room.status === 'finished'
-      ? parts.map((p) => ({
+      ? active.map((p) => ({
           playerId: p.id,
           name: p.name,
           points: room.roundScores[p.id] ?? 0,
         }))
       : null
 
-  const scores = [...room.players]
-    .filter((p) => p.id !== room.hostId)
+  const scores = [...active]
     .sort((a, b) => b.score - a.score)
     .map((p) => ({ playerId: p.id, name: p.name, score: p.score }))
 
@@ -540,7 +588,13 @@ export function toPublicRoom(room: Room, viewerId: string): PublicRoom {
     code: room.code,
     hostId: room.hostId,
     hostName: host?.name ?? 'Testledare',
-    players: room.players,
+    players: room.players.map(({ id, name, connected, score, pendingRound }) => ({
+      id,
+      name,
+      connected,
+      score,
+      pendingRound: pendingRound ?? false,
+    })),
     status: room.status,
     roundIndex: room.roundIndex,
     maxRounds: room.maxRounds,
@@ -549,10 +603,11 @@ export function toPublicRoom(room: Room, viewerId: string): PublicRoom {
     submissions,
     youSubmitted: hasSubmitted(room, viewerId),
     submittedCount: room.submissions.length,
-    participantCount: parts.length,
+    participantCount: active.length,
     roundScores,
     scores,
     youAreHost,
+    youPendingRound: Boolean(viewer?.pendingRound),
     minParticipants: MIN_PARTICIPANTS,
   }
 }

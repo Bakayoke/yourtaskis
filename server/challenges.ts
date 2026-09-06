@@ -265,6 +265,15 @@ export const starterChallenges: Challenge[] = [
 
 export const allChallenges: Challenge[] = [...starterChallenges, ...generatedChallenges]
 
+/** Hand-picked + partyGold block (c-301+) — picked more often. */
+const featuredChallengeIds = new Set<string>([
+  ...starterChallenges.map((c) => c.id),
+  ...generatedChallenges.filter((c) => {
+    const n = Number.parseInt(c.id.slice(2), 10)
+    return Number.isFinite(n) && n >= 301
+  }).map((c) => c.id),
+])
+
 const challengeById = new Map(allChallenges.map((c) => [c.id, c]))
 
 export function getChallenge(id: string): Challenge | undefined {
@@ -283,7 +292,9 @@ export function submissionModeFor(challenge: Challenge): SubmissionMode {
 export function pickNextChallenge(usedIds: string[]): Challenge {
   const unused = allChallenges.filter((c) => !usedIds.includes(c.id))
   const pool = unused.length > 0 ? unused : allChallenges
-  return pool[Math.floor(Math.random() * pool.length)]!
+  const featured = pool.filter((c) => featuredChallengeIds.has(c.id))
+  const pickPool = featured.length > 0 && Math.random() < 0.75 ? featured : pool
+  return pickPool[Math.floor(Math.random() * pickPool.length)]!
 }
 
 export { defaultTimer }

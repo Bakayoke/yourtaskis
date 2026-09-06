@@ -3,6 +3,9 @@ import { useFullscreen } from './useFullscreen'
 import { useHostScores } from './useHostScores'
 import { SisterGames } from './SisterGames'
 import { WinnerReveal } from './WinnerReveal'
+import { LanguageToggle } from './LanguageToggle'
+import { fill, loadLanguage, rememberLanguage, t, type Lang } from './i18n'
+import { formatError } from './translateError'
 import {
   backToLobby,
   clearSession,
@@ -14,6 +17,7 @@ import {
   joinUrl,
   loadSession,
   nextRound,
+  removePlayer,
   rejoinGame,
   saveSession,
   scorePlayer,
@@ -44,11 +48,14 @@ function formatTime(sec: number) {
   return m > 0 ? `${m}:${s.toString().padStart(2, '0')}` : `${s}s`
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  speed: 'Snabbhet',
-  creative: 'Kreativt',
-  subjective: 'Bedömning',
-  endurance: 'Uthållighet',
+const typeLabel = (type: string, ui: ReturnType<typeof t>) => {
+  const map: Record<string, string> = {
+    speed: ui.typeSpeed,
+    creative: ui.typeCreative,
+    subjective: ui.typeSubjective,
+    endurance: ui.typeEndurance,
+  }
+  return map[type] ?? type
 }
 
 function TvScoreboard({ room }: { room: PublicRoom }) {
@@ -66,6 +73,8 @@ function TvScoreboard({ room }: { room: PublicRoom }) {
 }
 
 export default function TvApp() {
+  const [lang, setLang] = useState<Lang>(() => loadLanguage())
+  const ui = t(lang)
   const [room, setRoom] = useState<PublicRoom | null>(null)
   const [name, setName] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -84,6 +93,16 @@ export default function TvApp() {
     [room],
   )
 
+  const activeParticipants = useMemo(
+    () => participants.filter((p) => !p.pendingRound),
+    [participants],
+  )
+
+  useEffect(() => {
+    rememberLanguage(lang)
+    document.documentElement.lang = lang
+  }, [lang])
+
   useEffect(() => {
     document.body.classList.add('tv-route')
     return () => document.body.classList.remove('tv-route')
@@ -97,10 +116,10 @@ export default function TvApp() {
   useEffect(() => {
     setRoomClosedHandler(() => {
       setRoom(null)
-      setError('Lobbyn avslutades.')
+      setError(ui.lobbyClosed)
     })
     return () => setRoomClosedHandler(null)
-  }, [])
+  }, [ui.lobbyClosed])
 
   useEffect(() => subscribeConnection(setConn), [])
 
@@ -118,13 +137,13 @@ export default function TvApp() {
         if (res.ok && res.room) {
           if (!res.room.youAreHost) {
             clearSession()
-            setError('TV-läge är bara för testledaren. Använd mobilvyn som deltagare.')
+            setError(ui.tvHostOnly)
           } else {
             setRoom(normalizePublicRoom(res.room))
           }
         }
       } catch {
-        if (!cancelled) setError('Kunde inte återansluta.')
+        if (!cancelled) setError(formatError('Kunde inte återansluta', lang))
       } finally {
         if (!cancelled) setBooting(false)
       }
@@ -146,50 +165,55 @@ export default function TvApp() {
     try {
       const res = await fn()
       if (!res.ok) {
-        setError(res.error ?? 'Något gick fel')
+        setError(formatError(res.error, lang))
         return
       }
       if (res.room) setRoom(normalizePublicRoom(res.room))
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Något gick fel')
+      setError(formatError(e instanceof Error ? e.message : undefined, lang))
     } finally {
       setBusy(false)
     }
   }
 
   async function handleCreate() {
-    if (!name.trim()) return setError('Ange ditt namn')
+    if (!name.trim()) return setError(ui.errorName)
     setBusy(true)
     setError(null)
     try {
       const res = await createGame(name.trim())
-      if (!res.ok) return setError(res.error)
+      if (!res.ok) return setError(formatError(res.error, lang))
       saveSession({ code: res.room.code, playerId: res.playerId, name: name.trim() })
       setRoom(normalizePublicRoom(res.room))
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Kunde inte skapa spel')
+      setError(formatError(e instanceof Error ? e.message : undefined, lang) || ui.errorCreate)
     } finally {
       setBusy(false)
     }
   }
 
   async function handleCloseLobby() {
-    if (!window.confirm('Avsluta lobbyn? Alla deltagare kopplas bort.')) return
+    if (!window.confirm(ui.closeLobbyConfirm)) return
     setError(null)
     setBusy(true)
     try {
       const res = await closeLobby()
       if (!res.ok) {
-        setError(res.error ?? 'Kunde inte avsluta lobbyn')
+        setError(formatError(res.error, lang) || ui.errorCloseLobby)
         return
       }
       clearSession()
       setRoom(null)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Kunde inte avsluta lobbyn')
+      setError(formatError(e instanceof Error ? e.message : undefined, lang) || ui.errorCloseLobby)
     } finally {
       setBusy(false)
     }
+  }
+
+  async function handleKick(playerId: string, playerName: string) {
+    if (!window.confirm(fill(ui.kickConfirm, { name: playerName }))) return
+    await act(() => removePlayer(playerId))
   }
 
   function TvShell({ children }: { children: ReactNode }) {
@@ -197,21 +221,21 @@ export default function TvApp() {
       <div className={`tv-app${fullscreen.active ? ' is-fullscreen' : ''}`}>
         {!fullscreen.active && showFullscreenPrompt && (
           <div className="tv-fullscreen-prompt">
-            <p>TV-läge är bäst i helskärm på stor skärm.</p>
+            <p>{ui.tvFullscreenHint}</p>
             <div className="tv-fullscreen-prompt-actions">
               <button
                 type="button"
                 className="tv-btn primary"
                 onClick={() => void fullscreen.enter().then((ok) => ok && setShowFullscreenPrompt(false))}
               >
-                Aktivera helskärm
+                {ui.tvFullscreenOn}
               </button>
               <button
                 type="button"
                 className="tv-btn ghost"
                 onClick={() => setShowFullscreenPrompt(false)}
               >
-                Hoppa över
+                {ui.tvFullscreenSkip}
               </button>
             </div>
           </div>
@@ -233,8 +257,8 @@ export default function TvApp() {
     return (
       <TvShell>
         <main className="tv-panel center">
-          <h1 className="tv-title">TV-läge</h1>
-          <p className="tv-muted">Ansluter…</p>
+          <h1 className="tv-title">{ui.tvBoot}</h1>
+          <p className="tv-muted">{ui.connecting}</p>
         </main>
       </TvShell>
     )
@@ -244,29 +268,31 @@ export default function TvApp() {
     return (
       <TvShell>
         <main className="tv-panel setup">
-          <p className="tv-eyebrow">yourtaskis.com · TV-läge</p>
-          <h1 className="tv-title">Testledare på stor skärm</h1>
-          <p className="tv-lead">
-            Skapa ett spel här på TV:n. Deltagarna ansluter via mobil med koden som visas.
-          </p>
+          <div className="tv-setup-top">
+            <p className="tv-eyebrow">{ui.brand} · {ui.tvBoot}</p>
+            <LanguageToggle lang={lang} onChange={setLang} label={ui.language} />
+          </div>
+          <h1 className="tv-title">{ui.tvSetupTitle}</h1>
+          <p className="tv-lead">{ui.tvSetupLead}</p>
+          {lang === 'en' && <p className="tv-muted">{ui.tvChallengesNote}</p>}
           <label className="tv-field">
-            <span>Ditt namn</span>
+            <span>{ui.yourName}</span>
             <input
               className="tv-input"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Testledaren"
+              placeholder={ui.hostPlaceholder}
               autoFocus
             />
           </label>
           {error && <p className="tv-error">{error}</p>}
           <button type="button" className="tv-btn primary" disabled={busy} onClick={() => void handleCreate()}>
-            {busy ? 'Skapar…' : 'Skapa spel'}
+            {busy ? ui.creating : ui.createGame}
           </button>
           <a href="/" className="tv-link">
-            ← Till mobilvyn
+            {ui.tvMobile}
           </a>
-          <SisterGames compact />
+          <SisterGames ui={ui} compact />
         </main>
       </TvShell>
     )
@@ -276,10 +302,10 @@ export default function TvApp() {
     return (
       <TvShell>
         <main className="tv-panel center">
-          <h1 className="tv-title">Endast testledare</h1>
-          <p className="tv-muted">{error ?? 'TV-läge kräver att du är testledare.'}</p>
+          <h1 className="tv-title">{ui.tvHostOnlyTitle}</h1>
+          <p className="tv-muted">{error ?? ui.tvHostOnlyHint}</p>
           <a href="/" className="tv-btn secondary">
-            Gå till mobilvyn
+            {ui.goMobile}
           </a>
         </main>
       </TvShell>
@@ -289,15 +315,16 @@ export default function TvApp() {
   return (
     <TvShell>
       {conn !== 'connected' && (
-        <div className="tv-conn">{conn === 'connecting' ? 'Ansluter…' : 'Frånkopplad'}</div>
+        <div className="tv-conn">{conn === 'connecting' ? ui.connecting : ui.disconnected}</div>
       )}
 
       <header className="tv-header">
         <div className="tv-header-left">
           <span className="tv-code">{room.code}</span>
           {room.roundIndex > 0 && (
-            <span className="tv-round">{roundLabel(room.roundIndex, room.maxRounds)}</span>
+            <span className="tv-round">{roundLabel(room.roundIndex, room.maxRounds, ui)}</span>
           )}
+          <LanguageToggle lang={lang} onChange={setLang} label={ui.language} />
         </div>
         <div className="tv-header-right">
           <TvScoreboard room={room} />
@@ -309,34 +336,48 @@ export default function TvApp() {
       {room.status === 'lobby' && (
         <main className="tv-main lobby">
           <section className="tv-hero">
-            <h1 className="tv-title">Välkommen, {room.hostName}</h1>
-            <p className="tv-lead">Deltagarna skannar QR-koden eller går till yourtaskis.com</p>
+            <h1 className="tv-title">{fill(ui.tvWelcome, { name: room.hostName })}</h1>
+            <p className="tv-lead">{ui.tvLead}</p>
             <p className="tv-code-huge">{room.code}</p>
-            <JoinQr url={joinLink} alt={`QR för kod ${room.code}`} />
+            <JoinQr url={joinLink} alt={`QR ${room.code}`} />
           </section>
           <section className="tv-side">
-            <h2>Deltagare</h2>
+            <h2>{ui.participantsTitle}</h2>
             <ul className="tv-players">
               {participants.length === 0 ? (
-                <li className="empty">Väntar på deltagare…</li>
+                <li className="empty">{ui.tvWaiting}</li>
               ) : (
                 participants.map((p) => (
                   <li key={p.id} className={p.connected ? '' : 'away'}>
-                    {p.name}
-                    {!p.connected && ' · borta'}
+                    <span>
+                      {p.name}
+                      {!p.connected && ` · ${ui.away}`}
+                      {p.pendingRound && ` · ${ui.pending}`}
+                    </span>
+                    {!p.pendingRound && (
+                      <button
+                        type="button"
+                        className="tv-btn ghost small"
+                        disabled={busy}
+                        onClick={() => void handleKick(p.id, p.name)}
+                      >
+                        {ui.kick}
+                      </button>
+                    )}
                   </li>
                 ))
               )}
             </ul>
             <p className="tv-muted">
-              {room.participantCount}/{room.minParticipants} krävs för start
+              {fill(ui.requiredForStart, { n: room.participantCount, min: room.minParticipants })}
             </p>
             <RoundSelector
               maxRounds={room.maxRounds}
               disabled={busy}
               variant="tv"
+              ui={ui}
               onChange={(maxRounds) => setRoom((r) => (r ? { ...r, maxRounds } : r))}
-              onError={setError}
+              onError={(msg) => setError(formatError(msg, lang))}
             />
             <button
               type="button"
@@ -344,7 +385,7 @@ export default function TvApp() {
               disabled={busy || room.participantCount < room.minParticipants}
               onClick={() => act(startGame)}
             >
-              Starta första testet
+              {ui.startFirst}
             </button>
             <button
               type="button"
@@ -352,9 +393,9 @@ export default function TvApp() {
               disabled={busy}
               onClick={() => void handleCloseLobby()}
             >
-              Avsluta lobby
+              {ui.closeLobby}
             </button>
-            <SisterGames compact />
+            <SisterGames ui={ui} compact />
           </section>
         </main>
       )}
@@ -362,7 +403,7 @@ export default function TvApp() {
       {room.status === 'challenge' && room.challenge && (
         <main className="tv-main challenge">
           <div className="tv-challenge-meta">
-            <span className="tv-type">{TYPE_LABELS[room.challenge.type] ?? room.challenge.type}</span>
+            <span className="tv-type">{typeLabel(room.challenge.type, ui)}</span>
             {countdown != null && countdown > 0 && (
               <span className="tv-timer">{formatTime(countdown)}</span>
             )}
@@ -371,21 +412,21 @@ export default function TvApp() {
           <p className="tv-challenge-text">{room.challenge.description}</p>
           <div className="tv-challenge-footer">
             <div className="tv-status-grid">
-              {participants.map((p) => {
+              {activeParticipants.map((p) => {
                 const done = room.submissions.some((s) => s.playerId === p.id)
                 return (
                   <div key={p.id} className={`tv-status-card${done ? ' done' : ''}`}>
                     <span className="name">{p.name}</span>
-                    <span className="state">{done ? '✓ Klar' : '…'}</span>
+                    <span className="state">{done ? ui.tvDone : ui.tvWaitingSubmit}</span>
                   </div>
                 )
               })}
             </div>
             <p className="tv-muted">
-              {room.submittedCount}/{room.participantCount} klara
+              {fill(ui.readyShort, { done: room.submittedCount, total: room.participantCount })}
             </p>
             <button type="button" className="tv-btn accent large" disabled={busy} onClick={() => act(endChallenge)}>
-              Stopp — bedöm nu
+              {ui.stopJudge}
             </button>
           </div>
         </main>
@@ -393,26 +434,26 @@ export default function TvApp() {
 
       {room.status === 'judging' && (
         <main className="tv-main judging">
-          <h1 className="tv-section-title">Bedöm deltagarna</h1>
-          <p className="tv-muted">Ge 1–5 poäng per person</p>
+          <h1 className="tv-section-title">{ui.judgeTitle}</h1>
+          <p className="tv-muted">{ui.judgeHint}</p>
           <div className="tv-judge-grid">
-            {participants.map((p) => {
+            {activeParticipants.map((p) => {
               const sub = room.submissions.find((s) => s.playerId === p.id)
               const given = hostScores[p.id]
               return (
                 <article key={p.id} className={`tv-judge-card${given != null ? ' scored' : ''}`}>
                   <div className="tv-judge-card-head">
                     <h2>{p.name}</h2>
-                    {given != null && <span className="tv-score-given">Du gav: {given} poäng</span>}
+                    {given != null && <span className="tv-score-given">{fill(ui.youGave, { n: given })}</span>}
                   </div>
                   {sub?.payload.startsWith('data:image') ? (
-                    <img src={sub.payload} alt={`Teckning av ${p.name}`} className="tv-submission-img" />
+                    <img src={sub.payload} alt={p.name} className="tv-submission-img" />
                   ) : sub?.payload === 'ready' ? (
-                    <p className="tv-muted">Fysiskt test — bedöm utifrån vad du såg.</p>
+                    <p className="tv-muted">{ui.physicalJudge}</p>
                   ) : sub ? (
                     <p className="tv-submission-text">{sub.payload}</p>
                   ) : (
-                    <p className="tv-muted">Ingen inlämning</p>
+                    <p className="tv-muted">{ui.noSubmission}</p>
                   )}
                   <div className="tv-score-row">
                     {[1, 2, 3, 4, 5].map((n) => (
@@ -442,7 +483,7 @@ export default function TvApp() {
 
       {room.status === 'scores' && (
         <main className="tv-main scores">
-          <h1 className="tv-section-title">Poäng — runda {room.roundIndex}</h1>
+          <h1 className="tv-section-title">{fill(ui.scoresAfter, { n: room.roundIndex })}</h1>
           {room.roundScores && (
             <ul className="tv-round-scores">
               {room.roundScores.map((r) => (
@@ -453,16 +494,16 @@ export default function TvApp() {
               ))}
             </ul>
           )}
-          <h2 className="tv-subtitle">Totalt</h2>
+          <h2 className="tv-subtitle">{ui.total}</h2>
           <TvScoreboard room={room} />
           <div className="tv-actions">
             {room.maxRounds === 0 || room.roundIndex < room.maxRounds ? (
               <button type="button" className="tv-btn primary large" disabled={busy} onClick={() => act(nextRound)}>
-                Nästa test
+                {ui.nextTest}
               </button>
             ) : null}
             <button type="button" className="tv-btn ghost" disabled={busy} onClick={() => act(endGame)}>
-              Avsluta spelet
+              {ui.endGame}
             </button>
           </div>
         </main>
@@ -470,10 +511,10 @@ export default function TvApp() {
 
       {room.status === 'finished' && (
         <main className="tv-main scores">
-          <h1 className="tv-section-title">Spelet är slut!</h1>
-          <WinnerReveal room={room} tv />
+          <h1 className="tv-section-title">{ui.gameOver}</h1>
+          <WinnerReveal room={room} ui={ui} tv />
           <button type="button" className="tv-btn primary large" disabled={busy} onClick={() => act(backToLobby)}>
-            Tillbaka till lobby
+            {ui.backToLobby}
           </button>
         </main>
       )}

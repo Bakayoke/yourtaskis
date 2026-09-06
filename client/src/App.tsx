@@ -3,6 +3,10 @@ import { DrawCanvas } from './DrawCanvas'
 import { useHostScores } from './useHostScores'
 import { WinnerReveal } from './WinnerReveal'
 import { SisterGames } from './SisterGames'
+import { LanguageToggle } from './LanguageToggle'
+import { PendingRoundBanner, ReconnectBanner } from './ReconnectBanner'
+import { fill, loadLanguage, rememberLanguage, t, type Lang } from './i18n'
+import { formatError } from './translateError'
 import {
   backToLobby,
   clearSession,
@@ -18,11 +22,13 @@ import {
   tvUrl,
   loadSession,
   nextRound,
+  removePlayer,
   rejoinGame,
   saveSession,
   scorePlayer,
   setRoomHandler,
   setRoomClosedHandler,
+  setKickedHandler,
   startGame,
   submitResponse,
   subscribeConnection,
@@ -81,11 +87,11 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
   }
 }
 
-function ConnBadge({ conn }: { conn: ConnState }) {
+function ConnBadge({ conn, ui }: { conn: ConnState; ui: ReturnType<typeof t> }) {
   if (conn === 'connected') return null
   return (
     <div className={`conn-badge ${conn}`}>
-      {conn === 'connecting' ? 'Ansluter…' : 'Frånkopplad — försöker igen'}
+      {conn === 'connecting' ? ui.connecting : ui.disconnected}
     </div>
   )
 }
@@ -105,6 +111,8 @@ function Scoreboard({ room }: { room: PublicRoom }) {
 }
 
 export default function App() {
+  const [lang, setLang] = useState<Lang>(() => loadLanguage())
+  const ui = t(lang)
   const [screen, setScreen] = useState<'home' | 'create' | 'join' | 'play'>('home')
   const [name, setName] = useState('')
   const [joinCode, setJoinCode] = useState('')
@@ -125,6 +133,11 @@ export default function App() {
   const stableDrawChange = useCallback((data: string) => setDrawDraft(data), [])
 
   useEffect(() => {
+    rememberLanguage(lang)
+    document.documentElement.lang = lang
+  }, [lang])
+
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const code = params.get('join')
     if (code) {
@@ -137,11 +150,11 @@ export default function App() {
     void fetchHealth()
       .then((h) => {
         if (h.persist && !h.persist.configured) {
-          setBanner('Servern saknar Redis — rum försvinner vid omstart.')
+          setBanner(ui.redisWarning)
         }
       })
       .catch(() => null)
-  }, [])
+  }, [ui.redisWarning])
 
   useEffect(() => {
     setRoomHandler((r) => setRoom(normalizePublicRoom(r)))
@@ -152,10 +165,19 @@ export default function App() {
     setRoomClosedHandler(() => {
       setRoom(null)
       setScreen('home')
-      setError('Testledaren avslutade lobbyn.')
+      setError(ui.lobbyClosed)
     })
     return () => setRoomClosedHandler(null)
-  }, [])
+  }, [ui.lobbyClosed])
+
+  useEffect(() => {
+    setKickedHandler(() => {
+      setRoom(null)
+      setScreen('home')
+      setError(ui.youWereKicked)
+    })
+    return () => setKickedHandler(null)
+  }, [ui.youWereKicked])
 
   useEffect(() => subscribeConnection(setConn), [])
 
@@ -181,29 +203,29 @@ export default function App() {
     try {
       const res = await fn()
       if (!res.ok) {
-        setError(res.error ?? 'Något gick fel')
+        setError(formatError(res.error, lang))
         return
       }
       if (res.room) setRoom(normalizePublicRoom(res.room))
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Något gick fel')
+      setError(formatError(e instanceof Error ? e.message : undefined, lang))
     } finally {
       setBusy(false)
     }
   }
 
   async function handleCreate() {
-    if (!name.trim()) return setError('Ange ditt namn')
+    if (!name.trim()) return setError(ui.errorName)
     setBusy(true)
     setError(null)
     try {
       const res = await createGame(name.trim())
-      if (!res.ok) return setError(res.error)
+      if (!res.ok) return setError(formatError(res.error, lang))
       saveSession({ code: res.room.code, playerId: res.playerId, name: name.trim() })
       setRoom(normalizePublicRoom(res.room))
       setScreen('play')
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Kunde inte skapa spel')
+      setError(formatError(e instanceof Error ? e.message : undefined, lang) || ui.errorCreate)
     } finally {
       setBusy(false)
     }
@@ -211,7 +233,7 @@ export default function App() {
 
   async function lookupJoinCode() {
     const code = joinCode.trim().toUpperCase()
-    if (code.length !== 4) return setError('Koden är fyra bokstäver')
+    if (code.length !== 4) return setError(ui.errorCode)
     setBusy(true)
     setError(null)
     try {
@@ -219,27 +241,32 @@ export default function App() {
       setJoinPreview(preview)
       setJoinStep('name')
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Hittade inget spel')
+      setError(formatError(e instanceof Error ? e.message : undefined, lang) || ui.errorLookup)
     } finally {
       setBusy(false)
     }
   }
 
   async function handleJoin() {
-    if (!name.trim()) return setError('Ange ditt namn')
+    if (!name.trim()) return setError(ui.errorName)
     setBusy(true)
     setError(null)
     try {
       const res = await joinGame(joinCode.trim().toUpperCase(), name.trim())
-      if (!res.ok) return setError(res.error)
+      if (!res.ok) return setError(formatError(res.error, lang))
       saveSession({ code: res.room.code, playerId: res.playerId, name: name.trim() })
       setRoom(normalizePublicRoom(res.room))
       setScreen('play')
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Kunde inte gå med')
+      setError(formatError(e instanceof Error ? e.message : undefined, lang) || ui.errorJoin)
     } finally {
       setBusy(false)
     }
+  }
+
+  async function handleKick(playerId: string, playerName: string) {
+    if (!window.confirm(fill(ui.kickConfirm, { name: playerName }))) return
+    await act(() => removePlayer(playerId))
   }
 
   function leaveGame() {
@@ -249,20 +276,20 @@ export default function App() {
   }
 
   async function handleCloseLobby() {
-    if (!window.confirm('Avsluta lobbyn? Alla deltagare kopplas bort.')) return
+    if (!window.confirm(ui.closeLobbyConfirm)) return
     setError(null)
     setBusy(true)
     try {
       const res = await closeLobby()
       if (!res.ok) {
-        setError(res.error ?? 'Kunde inte avsluta lobbyn')
+        setError(formatError(res.error, lang) || ui.errorCloseLobby)
         return
       }
       clearSession()
       setRoom(null)
       setScreen('home')
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Kunde inte avsluta lobbyn')
+      setError(formatError(e instanceof Error ? e.message : undefined, lang) || ui.errorCloseLobby)
     } finally {
       setBusy(false)
     }
@@ -287,12 +314,12 @@ export default function App() {
         setScreen('play')
       } else {
         clearSession()
-        setError('Kunde inte återansluta — starta ett nytt spel.')
+        setError(ui.errorResume)
         setScreen('home')
       }
     } catch (e) {
       clearSession()
-      setError(e instanceof Error ? e.message : 'Kunde inte återansluta')
+      setError(formatError(e instanceof Error ? e.message : undefined, lang) || ui.errorResume)
       setScreen('home')
     } finally {
       setBusy(false)
@@ -313,56 +340,57 @@ export default function App() {
     <ErrorBoundary>
     <div className={`app${hostLayout ? ' host' : ''}`}>
       <div className="content-layer">
-      <ConnBadge conn={conn} />
+      <ConnBadge conn={conn} ui={ui} />
       {banner && <div className="banner">{banner}</div>}
 
       {screen === 'home' && (
         <main className="panel">
-          <p className="eyebrow">yourtaskis.com</p>
+          <div className="panel-top">
+            <p className="eyebrow">{ui.brand}</p>
+            <LanguageToggle lang={lang} onChange={setLang} label={ui.language} />
+          </div>
           <h1>
             Your Task
             <span> Is…</span>
           </h1>
-          <p className="lead">
-            Hemma-Bäst-i-Test. En testledare, resten utför. Domaren ger poäng 1–5. Minst tre
-            personer.
-          </p>
+          <p className="lead">{ui.tagline}</p>
+          {lang === 'en' && <p className="muted">{ui.challengesSwedish}</p>}
           <div className="stack">
             <button type="button" className="btn primary" onClick={() => setScreen('create')}>
-              Jag är testledare
+              {ui.hostCta}
             </button>
             <button type="button" className="btn secondary" onClick={() => setScreen('join')}>
-              Gå med som deltagare
+              {ui.joinCta}
             </button>
             {savedSession && (
               <button type="button" className="btn ghost" disabled={busy} onClick={() => void resumeSession()}>
-                Fortsätt som {savedSession.name}
+                {ui.resumeAs} {savedSession.name}
               </button>
             )}
           </div>
-          <SisterGames />
+          <SisterGames ui={ui} />
         </main>
       )}
 
       {screen === 'create' && (
         <main className="panel">
           <button type="button" className="btn link" onClick={() => setScreen('home')}>
-            ← Tillbaka
+            ← {ui.back}
           </button>
-          <h2>Skapa spel</h2>
-          <p className="muted">Du blir testledare och bedömer varje test.</p>
+          <h2>{ui.createGame}</h2>
+          <p className="muted">{ui.hostHint}</p>
           <label className="field">
-            <span>Ditt namn</span>
+            <span>{ui.yourName}</span>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Testledaren"
+              placeholder={ui.hostPlaceholder}
               autoFocus
             />
           </label>
           {error && <p className="error">{error}</p>}
           <button type="button" className="btn primary" disabled={busy} onClick={() => void handleCreate()}>
-            {busy ? 'Skapar…' : 'Skapa rum'}
+            {busy ? ui.creating : ui.createRoom}
           </button>
         </main>
       )}
@@ -378,13 +406,13 @@ export default function App() {
               setJoinPreview(null)
             }}
           >
-            ← Tillbaka
+            ← {ui.back}
           </button>
-          <h2>Gå med</h2>
+          <h2>{ui.joinTitle}</h2>
           {joinStep === 'code' ? (
             <>
               <label className="field">
-                <span>Sessionskod</span>
+                <span>{ui.roomCode}</span>
                 <input
                   value={joinCode}
                   onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
@@ -395,27 +423,27 @@ export default function App() {
               </label>
               {error && <p className="error">{error}</p>}
               <button type="button" className="btn primary" disabled={busy} onClick={() => void lookupJoinCode()}>
-                {busy ? 'Söker…' : 'Fortsätt'}
+                {busy ? ui.searching : ui.continueBtn}
               </button>
             </>
           ) : (
             <>
               <p className="muted">
-                Går med hos <strong>{joinPreview?.hostName}</strong> · kod{' '}
+                {ui.joinPreview} <strong>{joinPreview?.hostName}</strong> ·{' '}
                 <strong>{joinCode.toUpperCase()}</strong>
               </p>
               <label className="field">
-                <span>Ditt namn</span>
+                <span>{ui.yourName}</span>
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Deltagare"
+                  placeholder={ui.participantPlaceholder}
                   autoFocus
                 />
               </label>
               {error && <p className="error">{error}</p>}
               <button type="button" className="btn primary" disabled={busy} onClick={() => void handleJoin()}>
-                {busy ? 'Ansluter…' : 'Gå med'}
+                {busy ? ui.joining : ui.joinBtn}
               </button>
             </>
           )}
@@ -424,14 +452,12 @@ export default function App() {
 
       {screen === 'play' && !room && (
         <main className="panel card">
-          <h2>Återansluter…</h2>
+          <h2>{ui.reconnectScreen}</h2>
           <p className="muted">
-            {conn === 'connected'
-              ? 'Kunde inte hitta din sparade session.'
-              : 'Väntar på anslutning till servern…'}
+            {conn === 'connected' ? ui.reconnectNoSession : ui.reconnectWait}
           </p>
           <button type="button" className="btn primary" onClick={resetToHome}>
-            Till startsidan
+            {ui.home}
           </button>
         </main>
       )}
@@ -442,50 +468,78 @@ export default function App() {
             <div>
               <span className="code-pill">{room.code}</span>
               {room.roundIndex > 0 && (
-                <span className="round-pill">{roundLabel(room.roundIndex, room.maxRounds)}</span>
+                <span className="round-pill">{roundLabel(room.roundIndex, room.maxRounds, ui)}</span>
               )}
             </div>
-            <button type="button" className="btn link small" onClick={leaveGame}>
-              Lämna
-            </button>
+            <div className="play-header-actions">
+              <LanguageToggle lang={lang} onChange={setLang} label={ui.language} />
+              <button type="button" className="btn link small" onClick={leaveGame}>
+                {ui.leave}
+              </button>
+            </div>
           </header>
+
+          <ReconnectBanner
+            conn={conn}
+            room={room}
+            ui={ui}
+            onReconnected={() => {
+              const session = loadSession()
+              if (session) void rejoinGame(session.code, session.playerId).then((res) => {
+                if (res.ok && res.room) setRoom(normalizePublicRoom(res.room))
+              })
+            }}
+          />
+          <PendingRoundBanner room={room} ui={ui} />
 
           {error && <p className="error">{error}</p>}
 
           {room.status === 'lobby' && (
             <section className="card">
-              <h2>Lobby</h2>
+              <h2>{ui.lobby}</h2>
               {room.youAreHost ? (
                 <>
-                  <p className="lead">Dela koden eller QR så deltagarna kan ansluta.</p>
+                  <p className="lead">{ui.lobbyHostLead}</p>
                   <div className="join-block">
                     <button type="button" className="code-big" onClick={copyCode}>
                       {room.code}
                     </button>
-                    <p className="muted">{copied ? 'Kopierad!' : 'Tryck för att kopiera'}</p>
-                    <JoinQr url={joinLink} alt={`QR för kod ${room.code}`} />
+                    <p className="muted">{copied ? ui.copied : ui.copyHint}</p>
+                    <JoinQr url={joinLink} alt={`QR ${room.code}`} />
                   </div>
                   <ul className="player-list">
                     <li className="host">
-                      {room.hostName} <em>testledare</em>
+                      {room.hostName} <em>{ui.hostLabel}</em>
                     </li>
                     {room.players
                       .filter((p) => p.id !== room.hostId)
                       .map((p) => (
                         <li key={p.id} className={p.connected ? '' : 'away'}>
-                          {p.name}
-                          {!p.connected && ' (borta)'}
+                          <span>
+                            {p.name}
+                            {!p.connected && ` (${ui.away})`}
+                            {p.pendingRound && ` · ${ui.pending}`}
+                          </span>
+                          <button
+                            type="button"
+                            className="btn link small kick-btn"
+                            disabled={busy}
+                            onClick={() => void handleKick(p.id, p.name)}
+                          >
+                            {ui.kick}
+                          </button>
                         </li>
                       ))}
                   </ul>
                   <p className="muted">
-                    {room.participantCount}/{room.minParticipants} deltagare
+                    {room.participantCount}/{room.minParticipants} {ui.participants}
                   </p>
                   <RoundSelector
                     maxRounds={room.maxRounds}
                     disabled={busy}
+                    ui={ui}
                     onChange={(maxRounds) => setRoom((r) => (r ? { ...r, maxRounds } : r))}
-                    onError={setError}
+                    onError={(msg) => setError(formatError(msg, lang))}
                   />
                   <div className="stack">
                     <button
@@ -494,10 +548,10 @@ export default function App() {
                       disabled={busy || room.participantCount < room.minParticipants}
                       onClick={() => act(startGame)}
                     >
-                      Starta första testet
+                      {ui.startFirst}
                     </button>
                     <a href={tvUrl(room.code)} className="btn secondary tv-link-btn" target="_blank" rel="noopener noreferrer">
-                      Öppna TV-läge ↗
+                      {ui.openTv}
                     </a>
                     <button
                       type="button"
@@ -505,23 +559,23 @@ export default function App() {
                       disabled={busy}
                       onClick={() => void handleCloseLobby()}
                     >
-                      Avsluta lobby
+                      {ui.closeLobby}
                     </button>
                   </div>
                 </>
               ) : (
                 <>
-                  <p className="lead">Väntar på att {room.hostName} startar…</p>
+                  <p className="lead">{fill(ui.waitingHost, { name: room.hostName })}</p>
                   {room.maxRounds === 0 ? (
-                    <p className="muted">Antal test: tills vi tröttnar</p>
+                    <p className="muted">{ui.roundsUnlimited}</p>
                   ) : (
-                    <p className="muted">{room.maxRounds} test planerade</p>
+                    <p className="muted">{fill(ui.roundsPlanned, { n: room.maxRounds })}</p>
                   )}
                   <ul className="player-list">
                     {room.players.map((p) => (
                       <li key={p.id} className={p.id === room.hostId ? 'host' : ''}>
                         {p.name}
-                        {p.id === room.hostId && ' · testledare'}
+                        {p.id === room.hostId && ` · ${ui.hostLabel}`}
                       </li>
                     ))}
                   </ul>
@@ -530,7 +584,7 @@ export default function App() {
             </section>
           )}
 
-          {room.status === 'challenge' && room.challenge && (
+          {room.status === 'challenge' && room.challenge && !room.youPendingRound && (
             <section className="card challenge-card">
               <p className="eyebrow">{room.challenge.type}</p>
               <h2>{room.challenge.title}</h2>
@@ -539,20 +593,23 @@ export default function App() {
                 <div className="timer">{formatTime(countdown)}</div>
               )}
               {countdown === 0 && room.challenge.timeLimitSeconds != null && (
-                <p className="muted">Tiden är ute — testledaren bedömer snart.</p>
+                <p className="muted">{ui.timeUp}</p>
               )}
 
               {room.youAreHost ? (
                 <div className="host-actions">
                   <p className="muted">
-                    {room.submittedCount}/{room.participantCount} har markerat klart
+                    {fill(ui.readyCount, {
+                      done: room.submittedCount,
+                      total: room.participantCount,
+                    })}
                   </p>
                   <button type="button" className="btn primary" disabled={busy} onClick={() => act(endChallenge)}>
-                    Stopp — bedöm nu
+                    {ui.stopJudge}
                   </button>
                 </div>
               ) : room.youSubmitted ? (
-                <p className="ok-msg">Inlämnat! Väntar på testledaren…</p>
+                <p className="ok-msg">{ui.submitted}</p>
               ) : (
                 <div className="submit-area">
                   {room.challenge.submissionMode === 'draw' && (
@@ -564,7 +621,7 @@ export default function App() {
                         disabled={busy}
                         onClick={() => act(() => submitResponse(drawDraft))}
                       >
-                        Lämna in teckning
+                        {ui.submitDraw}
                       </button>
                     </>
                   )}
@@ -573,7 +630,7 @@ export default function App() {
                       <textarea
                         value={textDraft}
                         onChange={(e) => setTextDraft(e.target.value)}
-                        placeholder="Skriv ditt svar…"
+                        placeholder={ui.textPlaceholder}
                         rows={4}
                       />
                       <button
@@ -582,20 +639,20 @@ export default function App() {
                         disabled={busy || !textDraft.trim()}
                         onClick={() => act(() => submitResponse(textDraft))}
                       >
-                        Lämna in svar
+                        {ui.submitText}
                       </button>
                     </>
                   )}
                   {room.challenge.submissionMode === 'physical' && (
                     <>
-                      <p className="muted">Gör uppgiften i verkligheten. Tryck när du är redo.</p>
+                      <p className="muted">{ui.physicalHint}</p>
                       <button
                         type="button"
                         className="btn primary"
                         disabled={busy}
                         onClick={() => act(() => submitResponse('ready'))}
                       >
-                        Jag är klar!
+                        {ui.imReady}
                       </button>
                     </>
                   )}
@@ -606,11 +663,11 @@ export default function App() {
 
           {room.status === 'judging' && room.youAreHost && (
             <section className="card">
-              <h2>Bedöm deltagarna</h2>
-              <p className="muted">Ge 1–5 poäng per person. Alla måste poängsättas.</p>
+              <h2>{ui.judgeTitle}</h2>
+              <p className="muted">{ui.judgeHint}</p>
               <div className="judge-grid">
                 {room.players
-                  .filter((p) => p.id !== room.hostId)
+                  .filter((p) => p.id !== room.hostId && !p.pendingRound)
                   .map((p) => {
                     const sub = room.submissions.find((s) => s.playerId === p.id)
                     const given = hostScores[p.id]
@@ -618,16 +675,18 @@ export default function App() {
                       <article key={p.id} className={`judge-card${given != null ? ' scored' : ''}`}>
                         <div className="judge-card-head">
                           <h3>{p.name}</h3>
-                          {given != null && <span className="score-given">Du gav: {given} poäng</span>}
+                          {given != null && (
+                            <span className="score-given">{fill(ui.youGave, { n: given })}</span>
+                          )}
                         </div>
                         {sub?.payload.startsWith('data:image') ? (
-                          <img src={sub.payload} alt={`Teckning av ${p.name}`} className="submission-img" />
+                          <img src={sub.payload} alt={p.name} className="submission-img" />
                         ) : sub?.payload === 'ready' ? (
-                          <p className="muted">Fysiskt test — bedöm utifrån vad du såg.</p>
+                          <p className="muted">{ui.physicalJudge}</p>
                         ) : sub ? (
                           <p className="submission-text">{sub.payload}</p>
                         ) : (
-                          <p className="muted">Ingen inlämning</p>
+                          <p className="muted">{ui.noSubmission}</p>
                         )}
                         <div className="score-row">
                           {[1, 2, 3, 4, 5].map((n) => (
@@ -657,34 +716,34 @@ export default function App() {
 
           {room.status === 'judging' && !room.youAreHost && (
             <section className="card center">
-              <h2>Bedömning pågår</h2>
-              <p className="muted">{room.hostName} ger poäng…</p>
+              <h2>{ui.judging}</h2>
+              <p className="muted">{fill(ui.judgingWait, { name: room.hostName })}</p>
             </section>
           )}
 
           {room.status === 'scores' && (
             <section className="card">
-              <h2>Poäng efter runda {room.roundIndex}</h2>
+              <h2>{fill(ui.scoresAfter, { n: room.roundIndex })}</h2>
               {room.roundScores && (
                 <ul className="round-scores">
                   {room.roundScores.map((r) => (
                     <li key={r.playerId}>
-                      {r.name}: <strong>{r.points}</strong> poäng
+                      {r.name}: <strong>{r.points}</strong> {ui.points}
                     </li>
                   ))}
                 </ul>
               )}
-              <h3>Totalt</h3>
+              <h3>{ui.total}</h3>
               <Scoreboard room={room} />
               {room.youAreHost && (
                 <div className="stack">
                   {room.maxRounds > 0 && room.roundIndex >= room.maxRounds ? null : (
                     <button type="button" className="btn primary" disabled={busy} onClick={() => act(nextRound)}>
-                      Nästa test
+                      {ui.nextTest}
                     </button>
                   )}
                   <button type="button" className="btn ghost" disabled={busy} onClick={() => act(endGame)}>
-                    Avsluta spelet
+                    {ui.endGame}
                   </button>
                 </div>
               )}
@@ -693,18 +752,18 @@ export default function App() {
 
           {room.status === 'finished' && (
             <section className="card">
-              <h2>Spelet är slut!</h2>
-              <WinnerReveal room={room} />
+              <h2>{ui.gameOver}</h2>
+              <WinnerReveal room={room} ui={ui} />
               {room.youAreHost ? (
                 <button type="button" className="btn primary" disabled={busy} onClick={() => act(backToLobby)}>
-                  Tillbaka till lobby
+                  {ui.backToLobby}
                 </button>
               ) : (
-                <p className="muted">Tack för att du deltog!</p>
+                <p className="muted">{ui.thanks}</p>
               )}
             </section>
           )}
-          <SisterGames compact />
+          <SisterGames ui={ui} compact />
         </main>
       )}
       </div>

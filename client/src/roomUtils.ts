@@ -10,5 +10,13 @@ export function normalizeMaxRounds(value: unknown): number {
 }
 
 export function normalizePublicRoom(room: PublicRoom): PublicRoom {
-  return { ...room, maxRounds: normalizeMaxRounds(room.maxRounds) }
+  return {
+    ...room,
+    maxRounds: normalizeMaxRounds(room.maxRounds),
+    youPendingRound: room.youPendingRound ?? false,
+    players: room.players.map((p) => ({
+      ...p,
+      pendingRound: p.pendingRound ?? false,
+    })),
+  }
 }

@@ -36,6 +36,8 @@ type RoomHandler = (room: PublicRoom) => void
 let onRoomHandler: RoomHandler | null = null
 type RoomClosedHandler = () => void
 let onRoomClosedHandler: RoomClosedHandler | null = null
+type KickedHandler = () => void
+let onKickedHandler: KickedHandler | null = null
 
 export function getSocket() {
   if (!socket) {
@@ -71,6 +73,10 @@ export function getSocket() {
     socket.on('roomClosed', () => {
       clearSession()
       onRoomClosedHandler?.()
+    })
+    socket.on('kicked', () => {
+      clearSession()
+      onKickedHandler?.()
     })
   }
 
@@ -109,6 +115,11 @@ export function setRoomHandler(handler: RoomHandler | null) {
 
 export function setRoomClosedHandler(handler: RoomClosedHandler | null) {
   onRoomClosedHandler = handler
+  getSocket()
+}
+
+export function setKickedHandler(handler: KickedHandler | null) {
+  onKickedHandler = handler
   getSocket()
 }
 
@@ -260,6 +271,10 @@ export async function backToLobby() {
 
 export async function closeLobby() {
   return ack<{ ok: boolean; closed?: boolean; error?: string }>('closeLobby', {})
+}
+
+export async function removePlayer(targetId: string) {
+  return ack<{ ok: boolean; error?: string; room?: PublicRoom }>('removePlayer', { targetId })
 }
 
 export async function endGame() {

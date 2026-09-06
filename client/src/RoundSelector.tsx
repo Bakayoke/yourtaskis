@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { setMaxRounds } from './api'
+import { fill, type Ui } from './i18n'
 import { normalizeMaxRounds } from './roomUtils'
 
 const PRESETS = [
@@ -15,6 +16,7 @@ type Props = {
   maxRounds: number
   disabled?: boolean
   variant?: 'mobile' | 'tv'
+  ui: Ui
   onChange?: (maxRounds: number) => void
   onError?: (message: string) => void
 }
@@ -23,14 +25,14 @@ function isPreset(value: number) {
   return PRESETS.some((p) => p.value === value)
 }
 
-export function selectedRoundSummary(maxRounds: number) {
+export function selectedRoundSummary(maxRounds: number, ui: Ui) {
   const rounds = normalizeMaxRounds(maxRounds)
-  if (rounds === 0) return 'Valt: Tills vi tröttnar'
-  const word = rounds === 1 ? 'runda' : 'rundor'
-  return `Valt: ${rounds} ${word}`
+  if (rounds === 0) return ui.roundSelectedUnlimited
+  const word = rounds === 1 ? ui.roundWordOne : ui.roundWordMany
+  return fill(ui.roundSelected, { n: rounds, word })
 }
 
-export function RoundSelector({ maxRounds, disabled, variant = 'mobile', onChange, onError }: Props) {
+export function RoundSelector({ maxRounds, disabled, variant = 'mobile', ui, onChange, onError }: Props) {
   const rounds = normalizeMaxRounds(maxRounds)
   const [custom, setCustom] = useState(!isPreset(rounds) && rounds > 0)
   const [customValue, setCustomValue] = useState(
@@ -57,11 +59,11 @@ export function RoundSelector({ maxRounds, disabled, variant = 'mobile', onChang
         if (next !== value) onChange?.(next)
       } else {
         onChange?.(previous)
-        onError?.(res.error ?? 'Kunde inte ändra antal test')
+        onError?.(res.error ?? ui.errorGeneric)
       }
     } catch (e) {
       onChange?.(previous)
-      onError?.(e instanceof Error ? e.message : 'Kunde inte ändra antal test')
+      onError?.(e instanceof Error ? e.message : ui.errorGeneric)
     } finally {
       setBusy(false)
     }
@@ -81,11 +83,11 @@ export function RoundSelector({ maxRounds, disabled, variant = 'mobile', onChang
         if (next !== n) onChange?.(next)
       } else {
         onChange?.(previous)
-        onError?.(res.error ?? 'Kunde inte ändra antal test')
+        onError?.(res.error ?? ui.errorGeneric)
       }
     } catch (e) {
       onChange?.(previous)
-      onError?.(e instanceof Error ? e.message : 'Kunde inte ändra antal test')
+      onError?.(e instanceof Error ? e.message : ui.errorGeneric)
     } finally {
       setBusy(false)
     }
@@ -99,9 +101,9 @@ export function RoundSelector({ maxRounds, disabled, variant = 'mobile', onChang
 
   return (
     <div className={rowClass}>
-      <p className={variant === 'tv' ? 'tv-round-label' : 'round-label'}>Antal test</p>
+      <p className={variant === 'tv' ? 'tv-round-label' : 'round-label'}>{ui.roundCount}</p>
       <p className={summaryClass} aria-live="polite">
-        {selectedRoundSummary(rounds)}
+        {selectedRoundSummary(rounds, ui)}
       </p>
       <div className="round-pill-row">
         {PRESETS.map((p) => (
@@ -111,7 +113,7 @@ export function RoundSelector({ maxRounds, disabled, variant = 'mobile', onChang
             className={`${pillClass}${!custom && rounds === p.value ? ' active' : ''}`}
             disabled={disabled || busy}
             aria-pressed={!custom && rounds === p.value}
-            title={p.value === 0 ? 'Tills vi tröttnar' : undefined}
+            title={p.value === 0 ? ui.roundUnlimitedTitle : undefined}
             onClick={() => void pick(p.value)}
           >
             {p.label}
@@ -122,7 +124,7 @@ export function RoundSelector({ maxRounds, disabled, variant = 'mobile', onChang
           className={`${pillClass}${custom ? ' active' : ''}`}
           disabled={disabled || busy}
           aria-pressed={custom}
-          title="Eget antal"
+          title={ui.roundCustom}
           onClick={() => setCustom(true)}
         >
           {customLabel}
@@ -131,14 +133,14 @@ export function RoundSelector({ maxRounds, disabled, variant = 'mobile', onChang
       {custom && (
         <div className={`round-custom${variant === 'tv' ? ' tv' : ''}`}>
           <label className="round-custom-field">
-            <span className={variant === 'tv' ? 'tv-muted' : 'muted'}>Antal rundor</span>
+            <span className={variant === 'tv' ? 'tv-muted' : 'muted'}>{ui.roundCustomLabel}</span>
             <input
               type="number"
               min={1}
               max={99}
               value={customValue}
               disabled={disabled || busy}
-              aria-label="Antal rundor"
+              aria-label={ui.roundCustomLabel}
               onChange={(e) => setCustomValue(e.target.value)}
               className={`round-custom-input${variant === 'tv' ? ' tv-input' : ''}${customApplied && customValue === String(rounds) ? ' is-applied' : ''}`}
             />
@@ -149,7 +151,7 @@ export function RoundSelector({ maxRounds, disabled, variant = 'mobile', onChang
             disabled={disabled || busy}
             onClick={() => void applyCustom()}
           >
-            Sätt
+            {ui.roundSet}
           </button>
         </div>
       )}
@@ -157,8 +159,8 @@ export function RoundSelector({ maxRounds, disabled, variant = 'mobile', onChang
   )
 }
 
-export function roundLabel(roundIndex: number, maxRounds: number) {
+export function roundLabel(roundIndex: number, maxRounds: number, ui: Ui) {
   if (roundIndex <= 0) return null
-  if (maxRounds > 0) return `Runda ${roundIndex}/${maxRounds}`
-  return `Runda ${roundIndex}`
+  if (maxRounds > 0) return fill(ui.roundLabel, { n: roundIndex, max: maxRounds })
+  return fill(ui.roundLabelOpen, { n: roundIndex })
 }

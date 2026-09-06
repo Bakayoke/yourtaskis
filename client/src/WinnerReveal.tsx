@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react'
+import type { Ui } from './i18n'
 import type { PublicRoom } from './types'
 
 type Phase = 'before' | 'distribute' | 'winner'
@@ -25,7 +26,7 @@ function buildEntries(room: PublicRoom): Entry[] {
   })
 }
 
-export function WinnerReveal({ room, tv = false }: { room: PublicRoom; tv?: boolean }) {
+export function WinnerReveal({ room, ui, tv = false }: { room: PublicRoom; ui: Ui; tv?: boolean }) {
   const entries = useMemo(() => buildEntries(room), [room.scores, room.roundScores])
   const [phase, setPhase] = useState<Phase>('before')
   const [shownScores, setShownScores] = useState<Record<string, number>>({})
@@ -62,15 +63,15 @@ export function WinnerReveal({ room, tv = false }: { room: PublicRoom; tv?: bool
 
   const kicker =
     phase === 'before'
-      ? 'Poäng före sista testet'
+      ? ui.winnerBefore
       : phase === 'distribute'
-        ? 'Poäng delas ut…'
-        : 'Vinnare!'
+        ? ui.winnerDistribute
+        : ui.winner
 
   return (
     <div className={`winner-reveal${tv ? ' tv' : ''} phase-${phase}`}>
       <p className="winner-reveal-kicker">{kicker}</p>
-      <ol className="winner-reveal-track" aria-label="Slutresultat">
+      <ol className="winner-reveal-track" aria-label={ui.finalStandings}>
         {order.map((entry, rank) => {
           const isWinner = phase === 'winner' && entry.playerId === winnerId
           return (
