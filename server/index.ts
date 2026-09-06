@@ -3,7 +3,7 @@ import cors from 'cors'
 import { createServer } from 'node:http'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { Server } from 'socket.io'
+import { Server, type Socket } from 'socket.io'
 import {
   buildSnapshot,
   createRedisAdapterClients,
@@ -17,6 +17,7 @@ import {
 import {
   allRooms,
   backToLobby,
+  closeLobby,
   createRoom,
   endChallenge,
   endGame,
@@ -97,6 +98,17 @@ function persistNow() {
 
 setPersistHook(persistNow)
 setBroadcastHook(broadcastRoom)
+
+function socketsInRoom(code: string, exceptPlayerId?: string): Socket[] {
+  const out: Socket[] = []
+  for (const [, socket] of io.of('/').sockets) {
+    const binding = getBinding(socket.id)
+    if (!binding || binding.code !== code) continue
+    if (exceptPlayerId && binding.playerId === exceptPlayerId) continue
+    out.push(socket)
+  }
+  return out
+}
 
 function broadcastRoom(code: string) {
   const room = getRoom(code)
@@ -272,6 +284,23 @@ io.on('connection', (socket) => {
     if ('error' in result) return ack?.({ ok: false, error: result.error })
     ack?.({ ok: true, room: toPublicRoom(result, binding.playerId) })
     broadcastRoom(result.code)
+  })
+
+  socket.on('closeLobby', async (payload, ack) => {
+    try {
+      const binding = bindingFrom(payload)
+      if (!binding) return ack?.({ ok: false, error: 'Inte i ett rum' })
+      const code = binding.code
+      const notify = socketsInRoom(code, binding.playerId)
+      const result = closeLobby(code, binding.playerId)
+      if ('error' in result) return ack?.({ ok: false, error: result.error })
+      for (const s of notify) s.emit('roomClosed', { reason: 'lobby' })
+      await flushPersist()
+      ack?.({ ok: true, closed: true })
+    } catch (e) {
+      console.error(e)
+      ack?.({ ok: false, error: 'Kunde inte avsluta lobbyn' })
+    }
   })
 
   socket.on('endGame', (payload, ack) => {

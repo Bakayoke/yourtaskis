@@ -34,6 +34,8 @@ function isSessionBound() {
 
 type RoomHandler = (room: PublicRoom) => void
 let onRoomHandler: RoomHandler | null = null
+type RoomClosedHandler = () => void
+let onRoomClosedHandler: RoomClosedHandler | null = null
 
 export function getSocket() {
   if (!socket) {
@@ -65,6 +67,10 @@ export function getSocket() {
     }
     socket.on('room', (room: PublicRoom) => {
       onRoomHandler?.(normalizePublicRoom(room))
+    })
+    socket.on('roomClosed', () => {
+      clearSession()
+      onRoomClosedHandler?.()
     })
   }
 
@@ -98,6 +104,11 @@ export function subscribeConnection(handler: (state: ConnState) => void): () => 
 
 export function setRoomHandler(handler: RoomHandler | null) {
   onRoomHandler = handler
+  getSocket()
+}
+
+export function setRoomClosedHandler(handler: RoomClosedHandler | null) {
+  onRoomClosedHandler = handler
   getSocket()
 }
 
@@ -245,6 +256,10 @@ export async function nextRound() {
 
 export async function backToLobby() {
   return ack<{ ok: boolean; error?: string; room?: PublicRoom }>('backToLobby', {})
+}
+
+export async function closeLobby() {
+  return ack<{ ok: boolean; closed?: boolean; error?: string }>('closeLobby', {})
 }
 
 export async function endGame() {

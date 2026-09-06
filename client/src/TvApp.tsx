@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useFullscreen } from './useFullscreen'
 import { useHostScores } from './useHostScores'
+import { SisterGames } from './SisterGames'
 import { WinnerReveal } from './WinnerReveal'
 import {
   backToLobby,
   clearSession,
+  closeLobby,
   createGame,
   endChallenge,
   endGame,
@@ -16,6 +18,7 @@ import {
   saveSession,
   scorePlayer,
   setRoomHandler,
+  setRoomClosedHandler,
   startGame,
   subscribeConnection,
   type ConnState,
@@ -91,6 +94,14 @@ export default function TvApp() {
     return () => setRoomHandler(null)
   }, [])
 
+  useEffect(() => {
+    setRoomClosedHandler(() => {
+      setRoom(null)
+      setError('Lobbyn avslutades.')
+    })
+    return () => setRoomClosedHandler(null)
+  }, [])
+
   useEffect(() => subscribeConnection(setConn), [])
 
   useEffect(() => {
@@ -157,6 +168,25 @@ export default function TvApp() {
       setRoom(normalizePublicRoom(res.room))
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Kunde inte skapa spel')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function handleCloseLobby() {
+    if (!window.confirm('Avsluta lobbyn? Alla deltagare kopplas bort.')) return
+    setError(null)
+    setBusy(true)
+    try {
+      const res = await closeLobby()
+      if (!res.ok) {
+        setError(res.error ?? 'Kunde inte avsluta lobbyn')
+        return
+      }
+      clearSession()
+      setRoom(null)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Kunde inte avsluta lobbyn')
     } finally {
       setBusy(false)
     }
@@ -236,6 +266,7 @@ export default function TvApp() {
           <a href="/" className="tv-link">
             ← Till mobilvyn
           </a>
+          <SisterGames compact />
         </main>
       </TvShell>
     )
@@ -315,6 +346,15 @@ export default function TvApp() {
             >
               Starta första testet
             </button>
+            <button
+              type="button"
+              className="tv-btn ghost"
+              disabled={busy}
+              onClick={() => void handleCloseLobby()}
+            >
+              Avsluta lobby
+            </button>
+            <SisterGames compact />
           </section>
         </main>
       )}

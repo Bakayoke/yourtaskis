@@ -443,6 +443,28 @@ export function backToLobby(code: string, playerId: string) {
   return room
 }
 
+export function closeLobby(code: string, playerId: string) {
+  const room = getRoom(code)
+  if (!room) return { error: 'Rummet finns inte' as const }
+  if (!isHost(room, playerId)) return { error: 'Bara testledaren kan avsluta lobbyn' as const }
+  if (room.status !== 'lobby') {
+    return { error: 'Kan bara avsluta lobbyn innan spelet startat' as const }
+  }
+
+  for (const player of room.players) {
+    cancelDisconnectTimer(code, player.id)
+  }
+
+  for (const [socketId, binding] of socketToPlayer.entries()) {
+    if (binding.code === code) socketToPlayer.delete(socketId)
+  }
+
+  rooms.delete(code)
+  void deleteRoomRecord(code)
+  onPersist?.()
+  return { closed: true as const, code }
+}
+
 export function endGame(code: string, playerId: string) {
   const room = getRoom(code)
   if (!room) return { error: 'Rummet finns inte' as const }

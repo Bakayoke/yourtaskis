@@ -1472,3 +1472,75 @@ body.tv-route #root {
     transform: translateY(-4px) rotate(6deg);
   }
 }
+
+.sister-games {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.sister-games.compact {
+  margin-top: 0.85rem;
+}
+
+.sister-games .sister-game,
+.sister-games .sister-game.compact {
+  margin-top: 0;
+}
+
+.sister-game {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: inherit;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(244, 196, 48, 0.14),
+      rgba(230, 57, 70, 0.1) 55%,
+      rgba(36, 24, 48, 0.95)
+    );
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  transition: transform 0.18s ease, border-color 0.18s ease;
+}
+
+.sister-game:hover {
+  transform: translateY(-2px);
+  border-color: rgba(244, 196, 48, 0.45);
+}
+
+.sister-game strong {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+  color: var(--brand);
+}
+
+.sister-game span {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.35;
+  opacity: 0.92;
+}
+
+.sister-game em {
+  font-style: normal;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--brand-deep);
+  margin-top: 0.2rem;
+}
+
+.tv-app .sister-games {
+  max-width: 420px;
+}
+
+.tv-app .sister-game strong {
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+}

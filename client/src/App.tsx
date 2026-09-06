@@ -2,9 +2,11 @@ import { Component, useCallback, useEffect, useMemo, useState, type ReactNode } 
 import { DrawCanvas } from './DrawCanvas'
 import { useHostScores } from './useHostScores'
 import { WinnerReveal } from './WinnerReveal'
+import { SisterGames } from './SisterGames'
 import {
   backToLobby,
   clearSession,
+  closeLobby,
   createGame,
   endChallenge,
   endGame,
@@ -20,6 +22,7 @@ import {
   saveSession,
   scorePlayer,
   setRoomHandler,
+  setRoomClosedHandler,
   startGame,
   submitResponse,
   subscribeConnection,
@@ -145,6 +148,15 @@ export default function App() {
     return () => setRoomHandler(null)
   }, [])
 
+  useEffect(() => {
+    setRoomClosedHandler(() => {
+      setRoom(null)
+      setScreen('home')
+      setError('Testledaren avslutade lobbyn.')
+    })
+    return () => setRoomClosedHandler(null)
+  }, [])
+
   useEffect(() => subscribeConnection(setConn), [])
 
   useEffect(() => {
@@ -236,6 +248,26 @@ export default function App() {
     setScreen('home')
   }
 
+  async function handleCloseLobby() {
+    if (!window.confirm('Avsluta lobbyn? Alla deltagare kopplas bort.')) return
+    setError(null)
+    setBusy(true)
+    try {
+      const res = await closeLobby()
+      if (!res.ok) {
+        setError(res.error ?? 'Kunde inte avsluta lobbyn')
+        return
+      }
+      clearSession()
+      setRoom(null)
+      setScreen('home')
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Kunde inte avsluta lobbyn')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   function resetToHome() {
     clearSession()
     setRoom(null)
@@ -308,6 +340,7 @@ export default function App() {
               </button>
             )}
           </div>
+          <SisterGames />
         </main>
       )}
 
@@ -466,6 +499,14 @@ export default function App() {
                     <a href={tvUrl(room.code)} className="btn secondary tv-link-btn" target="_blank" rel="noopener noreferrer">
                       Öppna TV-läge ↗
                     </a>
+                    <button
+                      type="button"
+                      className="btn ghost"
+                      disabled={busy}
+                      onClick={() => void handleCloseLobby()}
+                    >
+                      Avsluta lobby
+                    </button>
                   </div>
                 </>
               ) : (
@@ -663,6 +704,7 @@ export default function App() {
               )}
             </section>
           )}
+          <SisterGames compact />
         </main>
       )}
       </div>
