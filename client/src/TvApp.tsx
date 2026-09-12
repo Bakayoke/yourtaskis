@@ -32,6 +32,7 @@ import { RoundSelector, roundLabel } from './RoundSelector'
 import { normalizePublicRoom } from './roomUtils'
 import { useChallengeTimerSound } from './useChallengeTimerSound'
 import { challengeTypeLabel } from './challengeTypeLabel'
+import { SubmissionGallery } from './SubmissionGallery'
 import type { PublicRoom } from './types'
 
 function useCountdown(endsAt: number) {
@@ -434,6 +435,7 @@ export default function TvApp() {
         <main className="tv-main judging">
           <h1 className="tv-section-title">{ui.judgeTitle}</h1>
           <p className="tv-muted">{ui.judgeHint}</p>
+          <SubmissionGallery room={room} ui={ui} tv />
           <div className="tv-judge-grid">
             {activeParticipants.map((p) => {
               const sub = room.submissions.find((s) => s.playerId === p.id)
@@ -482,6 +484,7 @@ export default function TvApp() {
       {room.status === 'scores' && (
         <main className="tv-main scores">
           <h1 className="tv-section-title">{fill(ui.scoresAfter, { n: room.roundIndex })}</h1>
+          <SubmissionGallery room={room} ui={ui} tv compact />
           {room.roundScores && (
             <ul className="tv-round-scores">
               {room.roundScores.map((r) => (
@@ -511,9 +514,11 @@ export default function TvApp() {
         <main className="tv-main scores">
           <h1 className="tv-section-title">{ui.gameOver}</h1>
           <WinnerReveal room={room} ui={ui} tv />
+          <SubmissionGallery room={room} ui={ui} tv compact />
           <button type="button" className="tv-btn primary large" disabled={busy} onClick={() => act(backToLobby)}>
-            {ui.backToLobby}
+            {ui.playAgain}
           </button>
+          <p className="tv-muted">{ui.playAgainHint}</p>
         </main>
       )}
     </TvShell>

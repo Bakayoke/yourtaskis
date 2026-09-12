@@ -461,6 +461,7 @@ export function backToLobby(code: string, playerId: string) {
   room.usedChallengeIds = []
   for (const p of room.players) {
     p.pendingRound = false
+    p.score = 0
   }
   touch(room)
   return room
@@ -566,8 +567,6 @@ export function toPublicRoom(room: Room, viewerId: string): PublicRoom {
   }))
 
   if (!youAreHost && room.status === 'challenge') {
-    submissions = submissions.filter((s) => s.playerId === viewerId)
-  } else if (!youAreHost && room.status === 'judging') {
     submissions = submissions.filter((s) => s.playerId === viewerId)
   }
 

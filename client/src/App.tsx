@@ -12,6 +12,7 @@ import { usePageMeta } from './usePageMeta'
 import { useChallengeTimerSound } from './useChallengeTimerSound'
 import { copyResults, shareResults } from './shareResults'
 import { challengeTypeLabel } from './challengeTypeLabel'
+import { SubmissionGallery } from './SubmissionGallery'
 import {
   backToLobby,
   clearSession,
@@ -751,15 +752,17 @@ export default function App() {
           )}
 
           {room.status === 'judging' && !room.youAreHost && (
-            <section className="card center">
+            <section className="card">
               <h2>{ui.judging}</h2>
               <p className="muted">{fill(ui.judgingWait, { name: room.hostName })}</p>
+              <SubmissionGallery room={room} ui={ui} />
             </section>
           )}
 
           {room.status === 'scores' && (
             <section className="card">
               <h2>{fill(ui.scoresAfter, { n: room.roundIndex })}</h2>
+              <SubmissionGallery room={room} ui={ui} compact />
               {room.roundScores && (
                 <ul className="round-scores">
                   {room.roundScores.map((r) => (
@@ -799,12 +802,19 @@ export default function App() {
               </div>
               {resultsMsg && <p className="ok-msg">{resultsMsg}</p>}
               <WinnerReveal room={room} ui={ui} />
+              <SubmissionGallery room={room} ui={ui} compact />
               {room.youAreHost ? (
-                <button type="button" className="btn primary" disabled={busy} onClick={() => act(backToLobby)}>
-                  {ui.backToLobby}
-                </button>
+                <div className="stack">
+                  <button type="button" className="btn primary" disabled={busy} onClick={() => act(backToLobby)}>
+                    {ui.playAgain}
+                  </button>
+                  <p className="muted">{ui.playAgainHint}</p>
+                </div>
               ) : (
-                <p className="muted">{ui.thanks}</p>
+                <>
+                  <p className="muted">{ui.thanks}</p>
+                  <p className="muted">{fill(ui.playAgainWait, { name: room.hostName })}</p>
+                </>
               )}
             </section>
           )}

@@ -151,6 +151,13 @@ const sv = {
   resultsCopied: 'Resultat kopierat!',
   resultsShareFailed: 'Kunde inte dela resultat',
   installHint: 'Lägg till på hemskärmen för snabb åtkomst vid nästa fest.',
+  playAgain: 'Spela igen',
+  playAgainHint: 'Samma gäng och samma kod — poängen nollas och ni kör en ny omgång.',
+  playAgainWait: 'Väntar på att {name} startar om…',
+  submissionsReveal: 'Inlämningar',
+  submissionsForRound: 'Svar på: {title}',
+  shareWinnerLine: 'Vinnare: {name} ({score} p)',
+  shareLastChallenge: 'Sista test: {title}',
 } as const
 
 const en: Record<keyof typeof sv, string> = {
@@ -304,6 +311,13 @@ const en: Record<keyof typeof sv, string> = {
   resultsCopied: 'Results copied!',
   resultsShareFailed: 'Could not share results',
   installHint: 'Add to your home screen for quick access at the next party.',
+  playAgain: 'Play again',
+  playAgainHint: 'Same crew and same code — scores reset for a new round.',
+  playAgainWait: 'Waiting for {name} to start again…',
+  submissionsReveal: 'Submissions',
+  submissionsForRound: 'Answers for: {title}',
+  shareWinnerLine: 'Winner: {name} ({score} pts)',
+  shareLastChallenge: 'Final challenge: {title}',
 }
 
 export type Ui = typeof sv

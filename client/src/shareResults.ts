@@ -1,10 +1,22 @@
-import type { Ui } from './i18n'
+import { fill, type Ui } from './i18n'
 import type { PublicRoom } from './types'
 
 export function buildResultsText(room: PublicRoom, ui: Ui): string {
   const header = `Your Task Is — ${room.code}`
-  const lines = room.scores.map((s, i) => `${i + 1}. ${s.name} — ${s.score} ${ui.points}`)
-  return [header, '', ...lines, '', 'yourtaskis.com'].join('\n')
+  const lines: string[] = [header, '']
+  const winner = room.scores[0]
+  if (winner) {
+    lines.push(fill(ui.shareWinnerLine, { name: winner.name, score: winner.score }))
+  }
+  if (room.challenge?.title) {
+    lines.push(fill(ui.shareLastChallenge, { title: room.challenge.title }))
+  }
+  lines.push('')
+  for (const [i, s] of room.scores.entries()) {
+    lines.push(`${i + 1}. ${s.name} — ${s.score} ${ui.points}`)
+  }
+  lines.push('', 'yourtaskis.com')
+  return lines.join('\n')
 }
 
 export async function copyResults(room: PublicRoom, ui: Ui): Promise<boolean> {
