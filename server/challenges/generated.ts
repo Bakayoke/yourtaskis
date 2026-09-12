@@ -380,7 +380,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-078",
-    "title": "Logo",
+    "title": "Logotyp",
     "description": "Designa en logotyp för kvällens fest. Ett tecken räcker. Din tid börjar nu.",
     "type": "creative",
     "timeLimitSeconds": 180,
@@ -428,7 +428,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-084",
-    "title": "Alien",
+    "title": "Utomjording",
     "description": "Rita en alien som precis landat i hallen. Din tid börjar nu.",
     "type": "creative",
     "timeLimitSeconds": 180,
@@ -469,7 +469,7 @@ export const generatedChallenges: Challenge[] = [
   {
     "id": "c-089",
     "title": "Hatt",
-    "description": "Rita världens mest over-the-top hatt. Din tid börjar nu.",
+    "description": "Rita världens mest sprakande hatt. Din tid börjar nu.",
     "type": "creative",
     "timeLimitSeconds": 180,
     "submissionMode": "draw"
@@ -644,7 +644,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-111",
-    "title": "Fake tweet",
+    "title": "Fejktweet",
     "description": "Skriv en tweet från testledaren som skulle ställa till det. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 120,
@@ -700,7 +700,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-118",
-    "title": "Obituary",
+    "title": "Nekrolog",
     "description": "Skriv en överdrivet dramatisk nekrolog för en socka som försvann. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 120,
@@ -708,7 +708,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-119",
-    "title": "Manual",
+    "title": "Bruksanvisning",
     "description": "Skriv en felaktig bruksanvisning för en stol. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 120,
@@ -796,7 +796,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-130",
-    "title": "Status",
+    "title": "Statusuppdatering",
     "description": "Skriv en Facebook-status från 2012 om den här kvällen. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 120,
@@ -804,7 +804,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-131",
-    "title": "LinkedIn",
+    "title": "LinkedIn-inlägg",
     "description": "Skriv en cringe LinkedIn-post om att \"vinna\" det här testet. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 120,
@@ -812,7 +812,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-132",
-    "title": "Tinder",
+    "title": "Tinder-profil",
     "description": "Skriv en Tinder-bio för testledaren baserat på ikväll. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 120,
@@ -820,7 +820,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-133",
-    "title": "Yelp",
+    "title": "Nätrecension",
     "description": "Recensera testledarens domarskrik som om det vore en restaurang. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 120,
@@ -828,7 +828,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-134",
-    "title": "Amazon",
+    "title": "Amazon-recension",
     "description": "Skriv en femstjärnig recension av något helt meningslöst. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 120,
@@ -900,7 +900,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-143",
-    "title": "Acronym",
+    "title": "Förkortning",
     "description": "Skapa en förkortning av ditt namn som låter som en myndighet. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 120,
@@ -916,7 +916,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-145",
-    "title": "News anchor",
+    "title": "Nyhetsankare",
     "description": "Läs upp din senaste tanke högt som en nyhetsuppläsare. Bäst gravitas vinner.",
     "type": "subjective",
     "submissionMode": "physical"
@@ -965,7 +965,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-152",
-    "title": "Whisper",
+    "title": "Viska",
     "description": "Viska något dramatiskt till testledaren. Mest teatralt vinner.",
     "type": "subjective",
     "submissionMode": "physical"
@@ -986,140 +986,140 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-155",
-    "title": "Nature documentary",
+    "title": "Naturdokumentär",
     "description": "Kommentera testledaren som David Attenborough.",
     "type": "subjective",
     "submissionMode": "physical"
   },
   {
     "id": "c-156",
-    "title": "Sport",
+    "title": "Sportkommentator",
     "description": "Ge en sportkommentator-beskrivning av någon i rummet.",
     "type": "subjective",
     "submissionMode": "physical"
   },
   {
     "id": "c-157",
-    "title": "Weather",
+    "title": "Väderrapport",
     "description": "Presentera vädret i det här rummet som en meteorolog.",
     "type": "subjective",
     "submissionMode": "physical"
   },
   {
     "id": "c-158",
-    "title": "Auction",
+    "title": "Auktion",
     "description": "Ropa ut ett föremål i rummet på auktion. Högst bud vinner inget — bara poäng.",
     "type": "subjective",
     "submissionMode": "physical"
   },
   {
     "id": "c-159",
-    "title": "Motivation",
+    "title": "Motivationstal",
     "description": "Ge testledaren en överdrivet peppig motivationsmonolog.",
     "type": "subjective",
     "submissionMode": "physical"
   },
   {
     "id": "c-160",
-    "title": "Therapist",
+    "title": "Snabbterapi",
     "description": "Ge testledaren tre sekunders terapi.",
     "type": "subjective",
     "submissionMode": "physical"
   },
   {
     "id": "c-161",
-    "title": "Fortune teller",
+    "title": "Spåkvinna",
     "description": "Spå testledarens framtid baserat på deras skor.",
     "type": "subjective",
     "submissionMode": "physical"
   },
   {
     "id": "c-162",
-    "title": "Chef",
+    "title": "Kocken",
     "description": "Låtsas vara kock och presentera en imaginär rätt.",
     "type": "subjective",
     "submissionMode": "physical"
   },
   {
     "id": "c-163",
-    "title": "Pilot",
+    "title": "Piloten",
     "description": "Gör säkerhetsinstruktioner för det här rummet.",
     "type": "subjective",
     "submissionMode": "physical"
   },
   {
     "id": "c-164",
-    "title": "Tour guide",
+    "title": "Museiguide",
     "description": "Guida oss genom rummet som om det vore ett museum.",
     "type": "subjective",
     "submissionMode": "physical"
   },
   {
     "id": "c-165",
-    "title": "Villain",
+    "title": "Skurken",
     "description": "Presentera dig som skurk och förklara din plan.",
     "type": "subjective",
     "submissionMode": "physical"
   },
   {
     "id": "c-166",
-    "title": "Hero entrance",
+    "title": "Hjälte-entrée",
     "description": "Gör en hjältemodig entré in i bild.",
     "type": "subjective",
     "submissionMode": "physical"
   },
   {
     "id": "c-167",
-    "title": "Slow motion",
-    "description": "Gör något vardagligt i slow motion. Mest filmiskt vinner.",
+    "title": "Slowmotion",
+    "description": "Gör något vardagligt i slowmotion. Mest filmiskt vinner.",
     "type": "subjective",
     "submissionMode": "physical"
   },
   {
     "id": "c-168",
-    "title": "Mime",
+    "title": "Mim",
     "description": "Mima att du klättrar på en osynlig stege.",
     "type": "subjective",
     "submissionMode": "physical"
   },
   {
     "id": "c-169",
-    "title": "Puppet",
+    "title": "Marionett",
     "description": "Låt din hand vara en marionett som introducerar dig.",
     "type": "subjective",
     "submissionMode": "physical"
   },
   {
     "id": "c-170",
-    "title": "Evil laugh",
+    "title": "Skurkskratt",
     "description": "Gör det bästa skurklig skrattet.",
     "type": "subjective",
     "submissionMode": "physical"
   },
   {
     "id": "c-171",
-    "title": "Compliment battle",
+    "title": "Komplimangslag",
     "description": "Ge testledaren den mest specifika komplimangen.",
     "type": "subjective",
     "submissionMode": "physical"
   },
   {
     "id": "c-172",
-    "title": "Roast",
+    "title": "Mild roast",
     "description": "Ge testledaren en mild roast som ändå känns ärlig.",
     "type": "subjective",
     "submissionMode": "physical"
   },
   {
     "id": "c-173",
-    "title": "Pickup line",
+    "title": "Raggningsreplik",
     "description": "Använd en raggningsreplik på ett kaffekopp.",
     "type": "subjective",
     "submissionMode": "physical"
   },
   {
     "id": "c-174",
-    "title": "Breakup",
+    "title": "Dramatiskt slut",
     "description": "Gör slut med en stol på ett dramatiskt sätt.",
     "type": "subjective",
     "submissionMode": "physical"
@@ -1132,7 +1132,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-176",
-    "title": "Squat hold",
+    "title": "Squat-håll",
     "description": "Stå i squat. Sista person som håller vinner. Testledaren avslutar när det är klart.",
     "type": "endurance"
   },
@@ -1168,19 +1168,19 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-182",
-    "title": "Bubble face",
+    "title": "Bubbelkind",
     "description": "Blås kinderna och håll luften. Sista vinner. Testledaren avslutar när det är klart.",
     "type": "endurance"
   },
   {
     "id": "c-183",
-    "title": "Tongue out",
+    "title": "Tunga ut",
     "description": "Stick ut tungan och håll. Sista vinner. Testledaren avslutar när det är klart.",
     "type": "endurance"
   },
   {
     "id": "c-184",
-    "title": "Superman",
+    "title": "Supermannen",
     "description": "Ligg som superman (armar och ben lyft). Sista vinner. Testledaren avslutar när det är klart.",
     "type": "endurance"
   },
@@ -1192,7 +1192,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-186",
-    "title": "Te-glas",
+    "title": "Tekopp",
     "description": "Håll en mugg/teglas med utsträckt arm. Sista vinner. Testledaren avslutar när det är klart.",
     "type": "endurance"
   },
@@ -1240,7 +1240,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-194",
-    "title": "Finger fight",
+    "title": "Fingerduell",
     "description": "Håll pekfingret upp utan att böja det. Sista vinner. Testledaren avslutar när det är klart.",
     "type": "endurance"
   },
@@ -1460,7 +1460,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-223",
-    "title": "Time capsule",
+    "title": "Tidskapsel",
     "description": "Packa en tidskapsel av tre saker från rummet. Testledaren bedömer när du är klar.",
     "type": "creative",
     "timeLimitSeconds": 150,
@@ -1492,7 +1492,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-227",
-    "title": "Zoo",
+    "title": "Djurpark",
     "description": "Bygg burar för tre \"djur\" (föremål). Testledaren bedömer när du är klar.",
     "type": "creative",
     "timeLimitSeconds": 150,
@@ -1508,7 +1508,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-229",
-    "title": "Red carpet",
+    "title": "Röda mattan",
     "description": "Bygg en röda mattan-upplevelse med det du har. Testledaren bedömer när du är klar.",
     "type": "creative",
     "timeLimitSeconds": 150,
@@ -1572,7 +1572,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-237",
-    "title": "Push-ups snabb",
+    "title": "Armhävningar snabbt",
     "description": "Flest armhävningar på tid — testledaren räknar. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1580,23 +1580,23 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-238",
-    "title": "Jumping jacks",
-    "description": "Flest jumping jacks på tid. Din tid börjar nu.",
+    "title": "Hoppjacks",
+    "description": "Flest hoppjacks på tid. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
     "submissionMode": "physical"
   },
   {
     "id": "c-239",
-    "title": "High knees",
-    "description": "Flest high knees på tid. Din tid börjar nu.",
+    "title": "Knähöjningar",
+    "description": "Flest knähöjningar på tid. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
     "submissionMode": "physical"
   },
   {
     "id": "c-240",
-    "title": "Spin",
+    "title": "Snurr",
     "description": "Snurra runt och stå still utan att ramla. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1620,7 +1620,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-243",
-    "title": "Transfer",
+    "title": "Flytt",
     "description": "Flytta tre föremål från A till B snabbast. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1628,7 +1628,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-244",
-    "title": "Sort",
+    "title": "Sortera",
     "description": "Sortera tio saker efter färg snabbast. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1636,7 +1636,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-245",
-    "title": "Fold",
+    "title": "Vika",
     "description": "Vik en filt eller handduk snyggast snabbast. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1644,7 +1644,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-246",
-    "title": "Stack cups",
+    "title": "Muggstapel",
     "description": "Stapla flest muggar/koppar utan att de faller. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1652,7 +1652,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-247",
-    "title": "Ping pong",
+    "title": "Pingpong",
     "description": "Studsa en boll (eller servett) flest gånger. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1660,7 +1660,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-248",
-    "title": "Keepy uppy",
+    "title": "Håll i luften",
     "description": "Håll en ballong/servett i luften längst. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1668,7 +1668,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-249",
-    "title": "Crab walk",
+    "title": "Krabbgång",
     "description": "Gå som krabba snabbast tvärs rummet. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1676,7 +1676,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-250",
-    "title": "Bear crawl",
+    "title": "Björngång",
     "description": "Björngång snabbast. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1684,7 +1684,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-251",
-    "title": "Backwards",
+    "title": "Baklänges",
     "description": "Gå baklänges snabbast till vald punkt. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1692,7 +1692,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-252",
-    "title": "Whisper run",
+    "title": "Tyst sprint",
     "description": "Spring tystast till dörren och tillbaka. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1700,7 +1700,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-253",
-    "title": "Object relay",
+    "title": "Stafett",
     "description": "Tagga testledaren med ett föremål snabbast (försiktigt!). Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1708,7 +1708,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-254",
-    "title": "Paper tear",
+    "title": "Pappersremsa",
     "description": "Riv papper i en så lång remsa som möjligt. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1724,7 +1724,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-256",
-    "title": "Knot",
+    "title": "Knutar",
     "description": "Knyt flest knutar på ett rep/snöre på tid. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1732,7 +1732,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-257",
-    "title": "Coin flip",
+    "title": "Myntkast",
     "description": "Flest lyckade myntkast i rad (mynt valfritt — låtsas räknas med heder). Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1740,7 +1740,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-258",
-    "title": "Dice roll",
+    "title": "Tärningskast",
     "description": "Kasta tärning högst totalt på tre kast. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1748,7 +1748,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-259",
-    "title": "Card house",
+    "title": "Korthus",
     "description": "Bygg högst korthus på kort tid. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1764,7 +1764,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-261",
-    "title": "Mystery box",
+    "title": "Mysteriebox",
     "description": "Hämta något från ett annat rum utan att säga vad. Testledaren gissar.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -1772,7 +1772,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-262",
-    "title": "Outfit swap",
+    "title": "Byt accessoar",
     "description": "Byt en accessoar med någon. Bäst match vinner.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1780,7 +1780,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-263",
-    "title": "Sock puppet",
+    "title": "Strumpdocka",
     "description": "Gör en strumpdocka och introducera den.",
     "type": "creative",
     "timeLimitSeconds": 150,
@@ -1796,7 +1796,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-265",
-    "title": "Campfire",
+    "title": "Lägereld",
     "description": "Berätta en skräckhistoria om en lampa.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -1804,7 +1804,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-266",
-    "title": "Commercial break",
+    "title": "Reklampaus",
     "description": "Gör en reklam paus för att sträcka på benen.",
     "type": "creative",
     "timeLimitSeconds": 150,
@@ -1812,7 +1812,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-267",
-    "title": "Weather report 2",
+    "title": "Väderrapport 2",
     "description": "Rapportera temperaturen i kylskåpet (om du vågar kolla).",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -1828,7 +1828,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-269",
-    "title": "Show and tell",
+    "title": "Visa och berätta",
     "description": "Visa upp det mest pinsamma i din telefon (inga privata bilder!).",
     "type": "creative",
     "timeLimitSeconds": 150,
@@ -1836,7 +1836,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-270",
-    "title": "Talent",
+    "title": "Talang",
     "description": "Visa en dold talang.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1844,7 +1844,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-271",
-    "title": "No talent",
+    "title": "Ingen talang",
     "description": "Visa upp något du är dålig på med stolthet.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -1852,7 +1852,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-272",
-    "title": "Group pose",
+    "title": "Grupppos",
     "description": "Organisera gruppen i en pose. Testledaren fotar eller bedömer.",
     "type": "creative",
     "timeLimitSeconds": 150,
@@ -1860,7 +1860,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-273",
-    "title": "Human letter",
+    "title": "Mänsklig bokstav",
     "description": "Bilda en bokstav med kroppen tillsammans med andra — eller solo.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -1876,7 +1876,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-275",
-    "title": "Sound effect",
+    "title": "Ljudeffekt",
     "description": "Gör ljudeffekter till testledarens promenad.",
     "type": "creative",
     "timeLimitSeconds": 150,
@@ -1884,15 +1884,15 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-276",
-    "title": "Slow clap",
-    "description": "Starta en slow clap som känns motiverad.",
+    "title": "Långsam applåd",
+    "description": "Starta en långsam applåd som känns motiverad.",
     "type": "speed",
     "timeLimitSeconds": 120,
     "submissionMode": "physical"
   },
   {
     "id": "c-277",
-    "title": "Standing ovation",
+    "title": "Stående ovation",
     "description": "Ge testledaren stående ovation. Mest genuint vinner.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -1900,7 +1900,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-278",
-    "title": "Award speech",
+    "title": "Pristacktal",
     "description": "Håll ett tacktal för en prisutdelning som inte hänt.",
     "type": "creative",
     "timeLimitSeconds": 150,
@@ -1908,7 +1908,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-279",
-    "title": "Acceptance speech",
+    "title": "Tacktal",
     "description": "Tacka någon som inte finns.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -1916,7 +1916,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-280",
-    "title": "Translator",
+    "title": "Översättare",
     "description": "Översätt testledarens senaste mening till \"piratsvenska\".",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1924,7 +1924,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-281",
-    "title": "Lawyer",
+    "title": "Advokaten",
     "description": "Försvara varför du borde få poäng utan att göra något.",
     "type": "creative",
     "timeLimitSeconds": 150,
@@ -1932,7 +1932,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-282",
-    "title": "Detective",
+    "title": "Detektiven",
     "description": "Lös vem som tog sista kakan (påhittat brott).",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -1940,7 +1940,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-283",
-    "title": "Scientist",
+    "title": "Forskaren",
     "description": "Förklara en vardaglig sak med fel vetenskap.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -1948,7 +1948,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-284",
-    "title": "Historian",
+    "title": "Historikern",
     "description": "Förklara ursprunget till en soffa som om den vore antik.",
     "type": "creative",
     "timeLimitSeconds": 150,
@@ -1956,7 +1956,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-285",
-    "title": "Coach",
+    "title": "Coachen",
     "description": "Ge testledaren en halvtidspeptalk.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -2004,8 +2004,8 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-291",
-    "title": "Reality intro",
-    "description": "Gör en reality-intro av dig själv med namn och catchphrase. Din tid börjar nu.",
+    "title": "Reality-intro",
+    "description": "Gör en realityintro av dig själv med namn och signaturreplik. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 90,
     "submissionMode": "physical"
@@ -2052,7 +2052,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-297",
-    "title": "Memory",
+    "title": "Minnesspel",
     "description": "Hämta exakt samma föremål som testledaren beskriver från minnet. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -2060,7 +2060,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-298",
-    "title": "Blind fetch",
+    "title": "Blint uppdrag",
     "description": "Hämta det testledaren säger medan du blundar. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -2108,7 +2108,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-304",
-    "title": "Left hand",
+    "title": "Fel hand",
     "description": "Rita en blomma med fel hand. Mest symmetrisk vinner. Din tid börjar nu.",
     "type": "creative",
     "timeLimitSeconds": 180,
@@ -2116,7 +2116,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-305",
-    "title": "Logo",
+    "title": "Logotyp",
     "description": "Designa en logotyp för kvällens test. Mest säljbar vinner. Din tid börjar nu.",
     "type": "creative",
     "timeLimitSeconds": 180,
@@ -2181,7 +2181,7 @@ export const generatedChallenges: Challenge[] = [
   {
     "id": "c-313",
     "title": "Rubrik",
-    "description": "Skriv en clickbait-rubrik om det som hände idag. Din tid börjar nu.",
+    "description": "Skriv en klickbeten-rubrik om det som hände idag. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 120,
     "submissionMode": "text"
@@ -2298,7 +2298,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-328",
-    "title": "Mime",
+    "title": "Mim",
     "description": "Mima att du öppnar en osynlig dörr — testledaren ska gissa vad som är bakom. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -2322,7 +2322,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-331",
-    "title": "Rap intro",
+    "title": "Rap-intro",
     "description": "Gör en 10-sekunders rap-intro om dig själv. Din tid börjar nu.",
     "type": "creative",
     "timeLimitSeconds": 150,
@@ -2354,7 +2354,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-335",
-    "title": "Infomercial",
+    "title": "Reklamfilm",
     "description": "Sälj ett vardagligt föremål i rummet som om det kostade en miljon. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -2362,7 +2362,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-336",
-    "title": "Nature documentary",
+    "title": "Naturdokumentär",
     "description": "Kommentera testledaren som David Attenborough. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -2370,7 +2370,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-337",
-    "title": "Weather report",
+    "title": "Väderrapport",
     "description": "Ge en väderrapport för stämningen i rummet. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -2378,7 +2378,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-338",
-    "title": "Translator",
+    "title": "Översättare",
     "description": "Översätt testledarens senaste mening till sura farbror-svenska. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -2386,7 +2386,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-339",
-    "title": "Motivation",
+    "title": "Motivationstal",
     "description": "Ge testledaren en peptalk som om de ska in i en boxningsmatch. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -2402,7 +2402,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-341",
-    "title": "Pillow fort",
+    "title": "Kuddfästning",
     "description": "Bygg en kuddfästning på 60 sekunder. Mest imponerande vinner. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -2474,7 +2474,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-350",
-    "title": "Alien",
+    "title": "Utomjording",
     "description": "Förklara jordens sedvänjor för testledaren som ett utomjordiskt väsen. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -2506,7 +2506,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-354",
-    "title": "Film pitch",
+    "title": "Filmpitch",
     "description": "Pitcha en film baserad på testledarens personlighet. Din tid börjar nu.",
     "type": "creative",
     "timeLimitSeconds": 120,
@@ -2546,7 +2546,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-359",
-    "title": "Bucket list",
+    "title": "Att-göra-lista",
     "description": "Skriv tre saker testledaren borde göra innan året är slut. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 120,
@@ -2586,7 +2586,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-364",
-    "title": "Compliment battle",
+    "title": "Komplimangslag",
     "description": "Ge testledaren det bästa komplimangen du kan — utan att upprepa någon annan. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -2594,7 +2594,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-365",
-    "title": "Roast light",
+    "title": "Mild roast",
     "description": "Säg något snällt-men-petigt om testledaren med ett leende. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -2602,16 +2602,16 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-366",
-    "title": "High five",
-    "description": "Ge testledaren den mest överdrivna high five du kan. Din tid börjar nu.",
+    "title": "Highfive",
+    "description": "Ge testledaren den mest överdrivna highfive du kan. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
     "submissionMode": "physical"
   },
   {
     "id": "c-367",
-    "title": "Fist bump",
-    "description": "Inspirera till världens smidigaste fist bump. Din tid börjar nu.",
+    "title": "Knoge",
+    "description": "Inspirera till världens smidigaste knoge. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
     "submissionMode": "physical"
@@ -2634,15 +2634,15 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-370",
-    "title": "Walk of shame",
-    "description": "Gör en \"walk of shame\" från kylskåpet till testledaren. Din tid börjar nu.",
+    "title": "Skam-vandring",
+    "description": "Gör en \"skam-vandring\" från kylskåpet till testledaren. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
     "submissionMode": "physical"
   },
   {
     "id": "c-371",
-    "title": "Victory lap",
+    "title": "Segervarv",
     "description": "Ta en segervarv runt rummet som om du redan vunnit. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -2650,15 +2650,15 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-372",
-    "title": "Slow walk",
-    "description": "Gå i slow motion från dörren till testledaren med dramatisk musik (nynna). Din tid börjar nu.",
+    "title": "Slowmotion-promenad",
+    "description": "Gå i slowmotion från dörren till testledaren med dramatisk musik (nynna). Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 90,
     "submissionMode": "physical"
   },
   {
     "id": "c-373",
-    "title": "Hide item",
+    "title": "Göm föremål",
     "description": "Göm ett föremål så testledaren har svårt att hitta det på 30 sekunder. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -2666,7 +2666,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-374",
-    "title": "Find item",
+    "title": "Hitta föremål",
     "description": "Hitta något i rummet som börjar på samma bokstav som ditt namn. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -2674,7 +2674,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-375",
-    "title": "Twin item",
+    "title": "Tvillingföremål",
     "description": "Hitta ett föremål som \"matchar\" testledarens energi. Motivera. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -2682,7 +2682,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-376",
-    "title": "Worst gift",
+    "title": "Sämsta presenten",
     "description": "Presentera det sämsta tänkbara julklappet till testledaren. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -2690,7 +2690,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-377",
-    "title": "Best gift",
+    "title": "Bästa presenten",
     "description": "Presentera det bästa tänkbara julklappet — med ett föremål i rummet. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -2698,7 +2698,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-378",
-    "title": "Auction 2",
+    "title": "Auktion 2",
     "description": "Auktionera ut din plats i soffan. Mest övertygande bud vinner. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 90,
@@ -2706,7 +2706,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-379",
-    "title": "Charades",
+    "title": "Charader",
     "description": "Spela charader — testledaren ska gissa på 60 sekunder. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -2714,7 +2714,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-380",
-    "title": "Reverse charades",
+    "title": "Omvänd charader",
     "description": "Alla utom en ska gissa — den ene mima. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -2722,7 +2722,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-381",
-    "title": "Sound quiz",
+    "title": "Ljudquiz",
     "description": "Imitera ett djur — testledaren gissar. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -2746,7 +2746,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-384",
-    "title": "Whistle",
+    "title": "Vissling",
     "description": "Vissla en melodi testledaren ska gissa. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -2754,7 +2754,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-385",
-    "title": "Humming",
+    "title": "Nynnande",
     "description": "Nynna en låt — testledaren gissar titeln. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -2762,7 +2762,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-386",
-    "title": "One word",
+    "title": "Ett ord",
     "description": "Beskriv testledaren med exakt ett ord — och förklara. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 120,
@@ -2770,7 +2770,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-387",
-    "title": "Two truths",
+    "title": "Två sanningar",
     "description": "Skriv två sanna och en falsk sak om dig — testledaren gissar lögnen. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 120,
@@ -2778,7 +2778,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-388",
-    "title": "Would you rather",
+    "title": "Skulle du hellre",
     "description": "Ställ en \"skulle du hellre\"-fråga till testledaren och svara själv. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 120,
@@ -2786,7 +2786,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-389",
-    "title": "Hot take",
+    "title": "Het åsikt",
     "description": "Skriv en kontroversiell matåsikt och försvara den. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 120,
@@ -2794,7 +2794,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-390",
-    "title": "Unpopular opinion",
+    "title": "Impopulär åsikt",
     "description": "Dela en impopulär åsikt om något harmlöst. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 120,
@@ -2802,7 +2802,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-391",
-    "title": "Complaint letter",
+    "title": "Klagobrev",
     "description": "Skriv ett klagomål till universum om något smått. Din tid börjar nu.",
     "type": "creative",
     "timeLimitSeconds": 120,
@@ -2810,7 +2810,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-392",
-    "title": "Thank you note",
+    "title": "Tackkort",
     "description": "Skriv ett tackkort till testledaren för kvällen. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 120,
@@ -2818,15 +2818,15 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-393",
-    "title": "Fortune cookie",
-    "description": "Skriv en fortune cookie-text för testledaren. Din tid börjar nu.",
+    "title": "Lyckokaka",
+    "description": "Skriv en lyckokaka-text för testledaren. Din tid börjar nu.",
     "type": "subjective",
     "timeLimitSeconds": 120,
     "submissionMode": "text"
   },
   {
     "id": "c-394",
-    "title": "Spell",
+    "title": "Trollformel",
     "description": "Skapa en trollformel testledaren kan använda imorgon bitti. Din tid börjar nu.",
     "type": "creative",
     "timeLimitSeconds": 120,
@@ -2834,7 +2834,7 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-395",
-    "title": "Spell name",
+    "title": "Trollformel",
     "description": "Döp en magisk besvärjelse efter testledaren. Din tid börjar nu.",
     "type": "creative",
     "timeLimitSeconds": 120,
@@ -2842,21 +2842,21 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-396",
-    "title": "Plank 2",
+    "title": "Plankan 2",
     "description": "Planka medan du säger något uppmuntrande till testledaren. Din tid börjar nu.",
     "type": "endurance",
     "submissionMode": "physical"
   },
   {
     "id": "c-397",
-    "title": "Wall sit 2",
+    "title": "Vägg-sits 2",
     "description": "Vägg-sits medan du håller ögonkontakt med testledaren. Din tid börjar nu.",
     "type": "endurance",
     "submissionMode": "physical"
   },
   {
     "id": "c-398",
-    "title": "Toe touch",
+    "title": "Törörning",
     "description": "Rör tårna utan att böja knäna — eller visa hur nära du kommer. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
@@ -2864,15 +2864,15 @@ export const generatedChallenges: Challenge[] = [
   },
   {
     "id": "c-399",
-    "title": "Jumping jacks",
-    "description": "Gör flest jumping jacks på 20 sekunder. Din tid börjar nu.",
+    "title": "Hoppjacks",
+    "description": "Gör flest hoppjacks på 20 sekunder. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,
     "submissionMode": "physical"
   },
   {
     "id": "c-400",
-    "title": "Push ups",
+    "title": "Armhävningar",
     "description": "Gör flest armhävningar (på knä räknas) på 20 sekunder. Din tid börjar nu.",
     "type": "speed",
     "timeLimitSeconds": 120,

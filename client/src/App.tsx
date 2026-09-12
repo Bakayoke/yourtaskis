@@ -11,6 +11,7 @@ import { formatError } from './translateError'
 import { usePageMeta } from './usePageMeta'
 import { useChallengeTimerSound } from './useChallengeTimerSound'
 import { copyResults, shareResults } from './shareResults'
+import { challengeTypeLabel } from './challengeTypeLabel'
 import {
   backToLobby,
   clearSession,
@@ -621,7 +622,7 @@ export default function App() {
 
           {room.status === 'challenge' && room.challenge && !room.youPendingRound && (
             <section className="card challenge-card">
-              <p className="eyebrow">{room.challenge.type}</p>
+              <p className="eyebrow">{challengeTypeLabel(room.challenge.type, ui)}</p>
               <h2>{room.challenge.title}</h2>
               <p className="challenge-text">{room.challenge.description}</p>
               {countdown != null && countdown > 0 && (

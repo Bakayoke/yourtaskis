@@ -6,6 +6,7 @@ import { writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Challenge, ChallengeType, SubmissionMode } from '../challengeTypes.js'
+import { localizeChallengesSv } from './localizeSv.js'
 import { defaultTimer } from './timers.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -545,7 +546,7 @@ function build(): Challenge[] {
     )
   }
 
-  return out.slice(0, 370)
+  return localizeChallengesSv(out.slice(0, 370))
 }
 
 const generated = build()

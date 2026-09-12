@@ -31,6 +31,7 @@ import { JoinQr } from './qr'
 import { RoundSelector, roundLabel } from './RoundSelector'
 import { normalizePublicRoom } from './roomUtils'
 import { useChallengeTimerSound } from './useChallengeTimerSound'
+import { challengeTypeLabel } from './challengeTypeLabel'
 import type { PublicRoom } from './types'
 
 function useCountdown(endsAt: number) {
@@ -47,16 +48,6 @@ function formatTime(sec: number) {
   const m = Math.floor(sec / 60)
   const s = sec % 60
   return m > 0 ? `${m}:${s.toString().padStart(2, '0')}` : `${s}s`
-}
-
-const typeLabel = (type: string, ui: ReturnType<typeof t>) => {
-  const map: Record<string, string> = {
-    speed: ui.typeSpeed,
-    creative: ui.typeCreative,
-    subjective: ui.typeSubjective,
-    endurance: ui.typeEndurance,
-  }
-  return map[type] ?? type
 }
 
 function TvScoreboard({ room }: { room: PublicRoom }) {
@@ -410,7 +401,7 @@ export default function TvApp() {
       {room.status === 'challenge' && room.challenge && (
         <main className="tv-main challenge">
           <div className="tv-challenge-meta">
-            <span className="tv-type">{typeLabel(room.challenge.type, ui)}</span>
+            <span className="tv-type">{challengeTypeLabel(room.challenge.type, ui)}</span>
             {countdown != null && countdown > 0 && (
               <span className="tv-timer">{formatTime(countdown)}</span>
             )}

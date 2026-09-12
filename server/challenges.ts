@@ -1,9 +1,10 @@
 export type { Challenge, ChallengeType, SubmissionMode } from './challengeTypes.js'
 import type { Challenge, SubmissionMode } from './challengeTypes.js'
 import { generatedChallenges } from './challenges/generated.js'
+import { localizeChallengesSv } from './challenges/localizeSv.js'
 import { defaultTimer } from './challenges/timers.js'
 
-export const starterChallenges: Challenge[] = [
+const starterChallengesRaw: Challenge[] = [
   {
     id: 'c-001',
     title: 'Porträtt i mörker',
@@ -263,7 +264,12 @@ export const starterChallenges: Challenge[] = [
   },
 ]
 
-export const allChallenges: Challenge[] = [...starterChallenges, ...generatedChallenges]
+export const starterChallenges: Challenge[] = localizeChallengesSv(starterChallengesRaw)
+
+export const allChallenges: Challenge[] = [
+  ...starterChallenges,
+  ...localizeChallengesSv(generatedChallenges),
+]
 
 /** Hand-picked + partyGold block (c-301+) — picked more often. */
 const featuredChallengeIds = new Set<string>([
