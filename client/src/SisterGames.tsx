@@ -1,5 +1,6 @@
 import type { Ui } from './i18n'
 
+const KLOTTERKAOS_URL = 'https://klotterkaos.com'
 const PARTY_PATHS_URL = 'https://partypaths.com'
 const FACTOPIA_URL = 'https://factopia.net'
 const SABOTEXT_URL = 'https://sabotext.com'
@@ -35,6 +36,13 @@ function SisterGameLink({
 export function SisterGames({ ui, compact }: { ui: Ui; compact?: boolean }) {
   return (
     <div className={`sister-games${compact ? ' compact' : ''}`}>
+      <SisterGameLink
+        name="Klotterkaos"
+        href={KLOTTERKAOS_URL}
+        pitch={ui.klotterkaosPitch}
+        cta={ui.klotterkaosCta}
+        compact={compact}
+      />
       <SisterGameLink
         name="Party Paths"
         href={PARTY_PATHS_URL}
