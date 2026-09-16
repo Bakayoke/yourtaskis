@@ -44,6 +44,12 @@ const EN_ERRORS: Record<string, string> = {
   'Kunde inte ändra antal test': 'Could not change number of challenges',
   'Deltagaren går med nästa runda': 'Player joins next round',
   'Kunde inte ta bort deltagare': 'Could not remove player',
+  'Reaktioner är inte tillgängliga nu': 'Reactions are not available now',
+  'Ogiltigt mål': 'Invalid target',
+  'Testledaren reagerar inte': 'The host cannot react',
+  'Rösta mellan rundor': 'Vote between rounds',
+  'Testledaren startar nästa test': 'The host starts the next challenge',
+  'Ogiltig röst': 'Invalid vote',
 }
 
 export function formatError(message: string | undefined, lang: Lang): string {

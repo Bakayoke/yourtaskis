@@ -33,6 +33,8 @@ import { normalizePublicRoom } from './roomUtils'
 import { useChallengeTimerSound } from './useChallengeTimerSound'
 import { challengeTypeLabel } from './challengeTypeLabel'
 import { SubmissionGallery } from './SubmissionGallery'
+import { TypeVoteHostSummary } from './TypeVotePanel'
+import { ComebackBanner, HandicapBanner, SessionAwards } from './SessionAwards'
 import type { PublicRoom } from './types'
 
 function useCountdown(endsAt: number) {
@@ -401,6 +403,7 @@ export default function TvApp() {
 
       {room.status === 'challenge' && room.challenge && (
         <main className="tv-main challenge">
+          <HandicapBanner room={room} ui={ui} />
           <div className="tv-challenge-meta">
             <span className="tv-type">{challengeTypeLabel(room.challenge.type, ui)}</span>
             {countdown != null && countdown > 0 && (
@@ -484,7 +487,9 @@ export default function TvApp() {
       {room.status === 'scores' && (
         <main className="tv-main scores">
           <h1 className="tv-section-title">{fill(ui.scoresAfter, { n: room.roundIndex })}</h1>
+          <ComebackBanner room={room} ui={ui} />
           <SubmissionGallery room={room} ui={ui} tv compact />
+          <TypeVoteHostSummary room={room} ui={ui} />
           {room.roundScores && (
             <ul className="tv-round-scores">
               {room.roundScores.map((r) => (
@@ -514,6 +519,7 @@ export default function TvApp() {
         <main className="tv-main scores">
           <h1 className="tv-section-title">{ui.gameOver}</h1>
           <WinnerReveal room={room} ui={ui} tv />
+          <SessionAwards room={room} ui={ui} />
           <SubmissionGallery room={room} ui={ui} tv compact />
           <button type="button" className="tv-btn primary large" disabled={busy} onClick={() => act(backToLobby)}>
             {ui.playAgain}

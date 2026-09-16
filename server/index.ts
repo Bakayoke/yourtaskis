@@ -15,6 +15,7 @@ import {
   subscribeRoomUpdates,
 } from './persist.js'
 import {
+  addReaction,
   allRooms,
   backToLobby,
   closeLobby,
@@ -42,6 +43,7 @@ import {
   startGame,
   submitResponse,
   toPublicRoom,
+  voteNextType,
 } from './rooms.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -327,6 +329,33 @@ io.on('connection', (socket) => {
     const binding = bindingFrom(payload)
     if (!binding) return ack?.({ ok: false, error: 'Inte i ett rum' })
     const result = endGame(binding.code, binding.playerId)
+    if ('error' in result) return ack?.({ ok: false, error: result.error })
+    ack?.({ ok: true, room: toPublicRoom(result, binding.playerId) })
+    broadcastRoom(result.code)
+  })
+
+  socket.on('addReaction', (payload, ack) => {
+    const binding = bindingFrom(payload)
+    if (!binding) return ack?.({ ok: false, error: 'Inte i ett rum' })
+    const result = addReaction(
+      binding.code,
+      binding.playerId,
+      String(payload?.targetId ?? ''),
+      String(payload?.emoji ?? '') as 'laugh' | 'fire' | 'skull',
+    )
+    if ('error' in result) return ack?.({ ok: false, error: result.error })
+    ack?.({ ok: true, room: toPublicRoom(result, binding.playerId) })
+    broadcastRoom(result.code)
+  })
+
+  socket.on('voteNextType', (payload, ack) => {
+    const binding = bindingFrom(payload)
+    if (!binding) return ack?.({ ok: false, error: 'Inte i ett rum' })
+    const result = voteNextType(
+      binding.code,
+      binding.playerId,
+      String(payload?.vote ?? '') as 'speed' | 'creative' | 'subjective' | 'endurance' | 'surprise',
+    )
     if ('error' in result) return ack?.({ ok: false, error: result.error })
     ack?.({ ok: true, room: toPublicRoom(result, binding.playerId) })
     broadcastRoom(result.code)

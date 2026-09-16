@@ -2,6 +2,42 @@ import type { ChallengeType, SubmissionMode } from './challengeTypes.js'
 
 export type RoomStatus = 'lobby' | 'challenge' | 'judging' | 'scores' | 'finished'
 
+export type ReactionEmoji = 'laugh' | 'fire' | 'skull'
+export type TypeVote = ChallengeType | 'surprise'
+
+export type ReactionEntry = {
+  from: string
+  to: string
+  emoji: ReactionEmoji
+}
+
+export type ComebackHighlight = {
+  playerId: string
+  playerName: string
+  fromRank: number
+  toRank: number
+}
+
+export type HandicapInfo = {
+  playerId: string
+  playerName: string
+  text: string
+}
+
+export type RoundHistoryEntry = {
+  roundIndex: number
+  challengeTitle: string
+  challengeType: ChallengeType
+  submissionMode: SubmissionMode
+  pointsByPlayer: Record<string, number>
+}
+
+export type SessionAward = {
+  id: string
+  playerId: string
+  playerName: string
+}
+
 export type Player = {
   id: string
   name: string
@@ -32,6 +68,13 @@ export type Room = {
   roundScores: Record<string, number>
   usedChallengeIds: string[]
   updatedAt: number
+  reactionLog: ReactionEntry[]
+  typeVotes: Record<string, TypeVote>
+  roundHistory: RoundHistoryEntry[]
+  fiveStarCounts: Record<string, number>
+  comeback: ComebackHighlight | null
+  handicap: HandicapInfo | null
+  sessionAwards: SessionAward[] | null
 }
 
 export type PublicChallenge = {
@@ -70,4 +113,10 @@ export type PublicRoom = {
   youAreHost: boolean
   youPendingRound: boolean
   minParticipants: number
+  reactions: Record<string, Partial<Record<ReactionEmoji, number>>>
+  typeVoteCounts: Record<TypeVote, number>
+  yourTypeVote: TypeVote | null
+  comeback: ComebackHighlight | null
+  handicap: HandicapInfo | null
+  awards: SessionAward[] | null
 }

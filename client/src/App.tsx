@@ -13,6 +13,8 @@ import { useChallengeTimerSound } from './useChallengeTimerSound'
 import { copyResults, shareResults } from './shareResults'
 import { challengeTypeLabel } from './challengeTypeLabel'
 import { SubmissionGallery } from './SubmissionGallery'
+import { TypeVoteHostSummary, TypeVotePanel } from './TypeVotePanel'
+import { ComebackBanner, HandicapBanner, SessionAwards } from './SessionAwards'
 import {
   backToLobby,
   clearSession,
@@ -370,6 +372,10 @@ export default function App() {
   }
 
   const hostLayout = room?.youAreHost
+  const showReactions =
+    room != null &&
+    !room.youAreHost &&
+    (room.status === 'judging' || room.status === 'scores' || room.status === 'finished')
 
   return (
     <ErrorBoundary>
@@ -623,6 +629,7 @@ export default function App() {
 
           {room.status === 'challenge' && room.challenge && !room.youPendingRound && (
             <section className="card challenge-card">
+              <HandicapBanner room={room} ui={ui} />
               <p className="eyebrow">{challengeTypeLabel(room.challenge.type, ui)}</p>
               <h2>{room.challenge.title}</h2>
               <p className="challenge-text">{room.challenge.description}</p>
@@ -755,14 +762,17 @@ export default function App() {
             <section className="card">
               <h2>{ui.judging}</h2>
               <p className="muted">{fill(ui.judgingWait, { name: room.hostName })}</p>
-              <SubmissionGallery room={room} ui={ui} />
+              <SubmissionGallery room={room} ui={ui} showReactions={showReactions} />
             </section>
           )}
 
           {room.status === 'scores' && (
             <section className="card">
               <h2>{fill(ui.scoresAfter, { n: room.roundIndex })}</h2>
-              <SubmissionGallery room={room} ui={ui} compact />
+              <ComebackBanner room={room} ui={ui} />
+              <SubmissionGallery room={room} ui={ui} compact showReactions={showReactions} />
+              <TypeVotePanel room={room} ui={ui} />
+              <TypeVoteHostSummary room={room} ui={ui} />
               {room.roundScores && (
                 <ul className="round-scores">
                   {room.roundScores.map((r) => (
@@ -802,7 +812,8 @@ export default function App() {
               </div>
               {resultsMsg && <p className="ok-msg">{resultsMsg}</p>}
               <WinnerReveal room={room} ui={ui} />
-              <SubmissionGallery room={room} ui={ui} compact />
+              <SessionAwards room={room} ui={ui} />
+              <SubmissionGallery room={room} ui={ui} compact showReactions={showReactions} />
               {room.youAreHost ? (
                 <div className="stack">
                   <button type="button" className="btn primary" disabled={busy} onClick={() => act(backToLobby)}>

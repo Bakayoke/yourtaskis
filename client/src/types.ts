@@ -2,6 +2,8 @@ export type RoomStatus = 'lobby' | 'challenge' | 'judging' | 'scores' | 'finishe
 
 export type ChallengeType = 'speed' | 'creative' | 'subjective' | 'endurance'
 export type SubmissionMode = 'draw' | 'text' | 'physical'
+export type ReactionEmoji = 'laugh' | 'fire' | 'skull'
+export type TypeVote = ChallengeType | 'surprise'
 
 export type Player = {
   id: string
@@ -27,6 +29,25 @@ export type PublicSubmission = {
   submittedAt: number
 }
 
+export type ComebackHighlight = {
+  playerId: string
+  playerName: string
+  fromRank: number
+  toRank: number
+}
+
+export type HandicapInfo = {
+  playerId: string
+  playerName: string
+  text: string
+}
+
+export type SessionAward = {
+  id: string
+  playerId: string
+  playerName: string
+}
+
 export type PublicRoom = {
   code: string
   hostId: string
@@ -46,6 +67,12 @@ export type PublicRoom = {
   youAreHost: boolean
   youPendingRound: boolean
   minParticipants: number
+  reactions: Record<string, Partial<Record<ReactionEmoji, number>>>
+  typeVoteCounts: Record<TypeVote, number>
+  yourTypeVote: TypeVote | null
+  comeback: ComebackHighlight | null
+  handicap: HandicapInfo | null
+  awards: SessionAward[] | null
 }
 
 export type Session = {

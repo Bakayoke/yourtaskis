@@ -1743,3 +1743,136 @@ body.tv-route #root {
 .submission-gallery.tv.compact .submission-gallery-img {
   max-height: min(28vh, 280px);
 }
+
+.reaction-bar {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.reaction-btn {
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 999px;
+  padding: 0.25rem 0.55rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.reaction-btn em {
+  font-style: normal;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--brand);
+}
+
+.reaction-counts {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+}
+
+.type-vote {
+  margin: 1.25rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.type-vote-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.type-vote-btn {
+  position: relative;
+}
+
+.type-vote-btn.selected {
+  border-color: rgba(244, 196, 48, 0.55);
+  background: rgba(244, 196, 48, 0.12);
+}
+
+.type-vote-count {
+  margin-left: 0.35rem;
+  font-weight: 800;
+  color: var(--brand);
+}
+
+.type-vote-host {
+  margin-top: 0.75rem;
+}
+
+.comeback-banner,
+.handicap-banner {
+  margin: 0 0 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid rgba(244, 196, 48, 0.4);
+  background: rgba(244, 196, 48, 0.12);
+}
+
+.comeback-banner p,
+.handicap-banner p {
+  margin: 0;
+}
+
+.handicap-text {
+  margin-top: 0.35rem !important;
+  font-weight: 700;
+}
+
+.session-awards {
+  margin: 1.25rem 0;
+}
+
+.session-awards h3 {
+  margin: 0 0 0.75rem;
+  color: var(--brand);
+  font-family: var(--font-display);
+}
+
+.session-awards ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.session-awards li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius);
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--line);
+}
+
+.session-awards strong {
+  font-size: 1rem;
+}
+
+.session-awards span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.btn.small {
+  font-size: 0.85rem;
+  padding: 0.35rem 0.65rem;
+}
+
+.tv-app .comeback-banner,
+.tv-app .handicap-banner {
+  font-size: clamp(1.1rem, 2vw, 1.6rem);
+}
+
+.tv-app .session-awards li {
+  font-size: clamp(1rem, 1.8vw, 1.35rem);
+}

@@ -295,9 +295,16 @@ export function submissionModeFor(challenge: Challenge): SubmissionMode {
   return 'physical'
 }
 
-export function pickNextChallenge(usedIds: string[]): Challenge {
+export function pickNextChallenge(
+  usedIds: string[],
+  preferredType?: ChallengeType | null,
+): Challenge {
   const unused = allChallenges.filter((c) => !usedIds.includes(c.id))
-  const pool = unused.length > 0 ? unused : allChallenges
+  let pool = unused.length > 0 ? unused : allChallenges
+  if (preferredType) {
+    const typed = pool.filter((c) => c.type === preferredType)
+    if (typed.length > 0) pool = typed
+  }
   const featured = pool.filter((c) => featuredChallengeIds.has(c.id))
   const pickPool = featured.length > 0 && Math.random() < 0.75 ? featured : pool
   return pickPool[Math.floor(Math.random() * pickPool.length)]!

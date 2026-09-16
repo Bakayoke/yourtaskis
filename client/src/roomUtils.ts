@@ -9,6 +9,14 @@ export function normalizeMaxRounds(value: unknown): number {
   return DEFAULT_MAX_ROUNDS
 }
 
+const emptyVoteCounts = {
+  speed: 0,
+  creative: 0,
+  subjective: 0,
+  endurance: 0,
+  surprise: 0,
+} as const
+
 export function normalizePublicRoom(room: PublicRoom): PublicRoom {
   return {
     ...room,
@@ -18,5 +26,11 @@ export function normalizePublicRoom(room: PublicRoom): PublicRoom {
       ...p,
       pendingRound: p.pendingRound ?? false,
     })),
+    reactions: room.reactions ?? {},
+    typeVoteCounts: room.typeVoteCounts ?? { ...emptyVoteCounts },
+    yourTypeVote: room.yourTypeVote ?? null,
+    comeback: room.comeback ?? null,
+    handicap: room.handicap ?? null,
+    awards: room.awards ?? null,
   }
 }

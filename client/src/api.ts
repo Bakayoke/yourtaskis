@@ -1,6 +1,6 @@
 import { io, type Socket } from 'socket.io-client'
 import { normalizePublicRoom } from './roomUtils'
-import type { PublicRoom, Session } from './types'
+import type { PublicRoom, ReactionEmoji, Session, TypeVote } from './types'
 
 const PRODUCTION_API = 'https://yourtaskis-production.up.railway.app'
 const API_BASE = (import.meta.env.VITE_SOCKET_URL || PRODUCTION_API).replace(/\/$/, '')
@@ -279,6 +279,17 @@ export async function removePlayer(targetId: string) {
 
 export async function endGame() {
   return ack<{ ok: boolean; error?: string; room?: PublicRoom }>('endGame', {})
+}
+
+export async function addReaction(targetId: string, emoji: ReactionEmoji) {
+  return ack<{ ok: boolean; error?: string; room?: PublicRoom }>('addReaction', {
+    targetId,
+    emoji,
+  })
+}
+
+export async function voteNextType(vote: TypeVote) {
+  return ack<{ ok: boolean; error?: string; room?: PublicRoom }>('voteNextType', { vote })
 }
 
 export type HealthInfo = {

@@ -1,11 +1,21 @@
 import { customAlphabet } from 'nanoid'
+import { computeSessionAwards } from './awards.js'
 import {
   getChallenge,
   pickNextChallenge,
   submissionModeFor,
 } from './challenges.js'
+import type { ChallengeType } from './challengeTypes.js'
+import { pickHandicapText } from './handicaps.js'
 import { deleteRoomRecord, loadRoomRecord, saveRoomRecord } from './persist.js'
-import type { PublicChallenge, PublicRoom, Room, Submission } from './types.js'
+import type {
+  PublicChallenge,
+  PublicRoom,
+  ReactionEmoji,
+  Room,
+  Submission,
+  TypeVote,
+} from './types.js'
 
 const makeCode = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ', 4)
 const makeId = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12)
@@ -81,8 +91,159 @@ function activatePendingPlayers(room: Room) {
   }
 }
 
+function emptyRoomMeta(): Pick<
+  Room,
+  | 'reactionLog'
+  | 'typeVotes'
+  | 'roundHistory'
+  | 'fiveStarCounts'
+  | 'comeback'
+  | 'handicap'
+  | 'sessionAwards'
+> {
+  return {
+    reactionLog: [],
+    typeVotes: {},
+    roundHistory: [],
+    fiveStarCounts: {},
+    comeback: null,
+    handicap: null,
+    sessionAwards: null,
+  }
+}
+
 function normalizeRoom(room: Room) {
   if (room.maxRounds == null || room.maxRounds < 0) room.maxRounds = DEFAULT_MAX_ROUNDS
+  if (!room.reactionLog) room.reactionLog = []
+  if (!room.typeVotes) room.typeVotes = {}
+  if (!room.roundHistory) room.roundHistory = []
+  if (!room.fiveStarCounts) room.fiveStarCounts = {}
+  if (room.comeback === undefined) room.comeback = null
+  if (room.handicap === undefined) room.handicap = null
+  if (room.sessionAwards === undefined) room.sessionAwards = null
+}
+
+function aggregateReactions(room: Room) {
+  const out: Record<string, Partial<Record<ReactionEmoji, number>>> = {}
+  for (const r of room.reactionLog) {
+    if (!out[r.to]) out[r.to] = {}
+    const bucket = out[r.to]!
+    bucket[r.emoji] = (bucket[r.emoji] ?? 0) + 1
+  }
+  return out
+}
+
+function tallyTypeVotes(room: Room): Record<TypeVote, number> {
+  const counts: Record<TypeVote, number> = {
+    speed: 0,
+    creative: 0,
+    subjective: 0,
+    endurance: 0,
+    surprise: 0,
+  }
+  for (const vote of Object.values(room.typeVotes)) counts[vote] += 1
+  return counts
+}
+
+function winningVoteType(room: Room): ChallengeType | null {
+  const counts = tallyTypeVotes(room)
+  let best: ChallengeType | null = null
+  let bestN = 0
+  for (const type of ['speed', 'creative', 'subjective', 'endurance'] as const) {
+    if (counts[type] > bestN) {
+      bestN = counts[type]
+      best = type
+    }
+  }
+  if (counts.surprise >= bestN && counts.surprise > 0) return null
+  return bestN > 0 ? best : null
+}
+
+function recordRoundHistory(room: Room) {
+  const challenge = room.currentChallengeId ? getChallenge(room.currentChallengeId) : null
+  if (!challenge) return
+  for (const [playerId, points] of Object.entries(room.roundScores)) {
+    if (points === 5) {
+      room.fiveStarCounts[playerId] = (room.fiveStarCounts[playerId] ?? 0) + 1
+    }
+  }
+  room.roundHistory.push({
+    roundIndex: room.roundIndex,
+    challengeTitle: challenge.title,
+    challengeType: challenge.type,
+    submissionMode: submissionModeFor(challenge),
+    pointsByPlayer: { ...room.roundScores },
+  })
+}
+
+function detectComeback(room: Room) {
+  const active = activeParticipants(room)
+  if (active.length < 2) {
+    room.comeback = null
+    return
+  }
+  const before = active.map((p) => ({
+    id: p.id,
+    score: p.score - (room.roundScores[p.id] ?? 0),
+  }))
+  const rankOf = (list: { id: string; score: number }[], id: string) =>
+    [...list].sort((a, b) => b.score - a.score).findIndex((x) => x.id === id) + 1
+
+  let bestId: string | null = null
+  let bestJump = 0
+  let fromRank = 0
+  let toRank = 0
+
+  for (const p of active) {
+    const beforeRank = rankOf(before, p.id)
+    const afterRank = rankOf(
+      active.map((x) => ({ id: x.id, score: x.score })),
+      p.id,
+    )
+    const jump = beforeRank - afterRank
+    if (jump > bestJump) {
+      bestJump = jump
+      bestId = p.id
+      fromRank = beforeRank
+      toRank = afterRank
+    }
+  }
+
+  if (bestId && bestJump >= 2) {
+    const player = active.find((p) => p.id === bestId)!
+    room.comeback = {
+      playerId: bestId,
+      playerName: player.name,
+      fromRank,
+      toRank,
+    }
+  } else {
+    room.comeback = null
+  }
+}
+
+function assignHandicapForLeader(room: Room) {
+  const active = activeParticipants(room)
+  if (active.length < 2) {
+    room.handicap = null
+    return
+  }
+  const leader = [...active].sort((a, b) => b.score - a.score)[0]!
+  if (leader.score <= 0) {
+    room.handicap = null
+    return
+  }
+  room.handicap = {
+    playerId: leader.id,
+    playerName: leader.name,
+    text: pickHandicapText(room.roundIndex),
+  }
+}
+
+function resetRoundMeta(room: Room) {
+  room.reactionLog = []
+  room.typeVotes = {}
+  room.comeback = null
 }
 
 function roundsComplete(room: Room) {
@@ -122,6 +283,7 @@ function beginChallenge(room: Room, challengeId: string) {
   }
   room.submissions = []
   room.roundScores = {}
+  resetRoundMeta(room)
   room.status = 'challenge'
   room.phaseEndsAt =
     challenge.timeLimitSeconds != null
@@ -142,13 +304,17 @@ function isHost(room: Room, playerId: string) {
 function finishGame(room: Room) {
   room.status = 'finished'
   room.phaseEndsAt = 0
+  room.handicap = null
+  room.sessionAwards = computeSessionAwards(room)
 }
 
 function moveToScores(room: Room) {
+  recordRoundHistory(room)
   for (const [playerId, points] of Object.entries(room.roundScores)) {
     const player = room.players.find((p) => p.id === playerId)
     if (player) player.score += points
   }
+  detectComeback(room)
   if (roundsComplete(room)) {
     finishGame(room)
   } else {
@@ -215,6 +381,7 @@ export function createRoom(hostName: string, socketId: string) {
     roundScores: {},
     usedChallengeIds: [],
     updatedAt: Date.now(),
+    ...emptyRoomMeta(),
   }
   rooms.set(code, room)
   socketToPlayer.set(socketId, { code, playerId: hostId })
@@ -441,8 +608,55 @@ export function nextRound(code: string, playerId: string) {
 
   room.roundIndex += 1
   activatePendingPlayers(room)
-  const next = pickNextChallenge(room.usedChallengeIds)
+  assignHandicapForLeader(room)
+  const preferred = winningVoteType(room)
+  const next = pickNextChallenge(room.usedChallengeIds, preferred)
   beginChallenge(room, next.id)
+  touch(room)
+  return room
+}
+
+export function addReaction(
+  code: string,
+  playerId: string,
+  targetId: string,
+  emoji: ReactionEmoji,
+) {
+  const room = getRoom(code)
+  if (!room) return { error: 'Rummet finns inte' as const }
+  if (room.status !== 'judging' && room.status !== 'scores' && room.status !== 'finished') {
+    return { error: 'Reaktioner är inte tillgängliga nu' as const }
+  }
+  if (targetId === room.hostId) return { error: 'Ogiltigt mål' as const }
+  if (!room.players.some((p) => p.id === targetId)) return { error: 'Deltagaren hittades inte' as const }
+  if (playerId === room.hostId) return { error: 'Testledaren reagerar inte' as const }
+  if (!(['laugh', 'fire', 'skull'] as const).includes(emoji)) {
+    return { error: 'Ogiltig reaktion' as const }
+  }
+
+  const existing = room.reactionLog.findIndex((r) => r.from === playerId && r.to === targetId)
+  if (existing >= 0) {
+    room.reactionLog[existing]!.emoji = emoji
+  } else {
+    room.reactionLog.push({ from: playerId, to: targetId, emoji })
+  }
+  touch(room)
+  return room
+}
+
+export function voteNextType(code: string, playerId: string, vote: TypeVote) {
+  const room = getRoom(code)
+  if (!room) return { error: 'Rummet finns inte' as const }
+  if (room.status !== 'scores') return { error: 'Rösta mellan rundor' as const }
+  if (isHost(room, playerId)) return { error: 'Testledaren startar nästa test' as const }
+
+  const player = room.players.find((p) => p.id === playerId)
+  if (player?.pendingRound) return { error: 'Du går med från nästa test' as const }
+
+  const allowed: TypeVote[] = ['speed', 'creative', 'subjective', 'endurance', 'surprise']
+  if (!allowed.includes(vote)) return { error: 'Ogiltig röst' as const }
+
+  room.typeVotes[playerId] = vote
   touch(room)
   return room
 }
@@ -459,6 +673,11 @@ export function backToLobby(code: string, playerId: string) {
   room.roundScores = {}
   room.roundIndex = 0
   room.usedChallengeIds = []
+  room.roundHistory = []
+  room.fiveStarCounts = {}
+  room.sessionAwards = null
+  room.handicap = null
+  resetRoundMeta(room)
   for (const p of room.players) {
     p.pendingRound = false
     p.score = 0
@@ -608,5 +827,11 @@ export function toPublicRoom(room: Room, viewerId: string): PublicRoom {
     youAreHost,
     youPendingRound: Boolean(viewer?.pendingRound),
     minParticipants: MIN_PARTICIPANTS,
+    reactions: aggregateReactions(room),
+    typeVoteCounts: tallyTypeVotes(room),
+    yourTypeVote: room.typeVotes[viewerId] ?? null,
+    comeback: room.comeback,
+    handicap: room.handicap,
+    awards: room.sessionAwards,
   }
 }
