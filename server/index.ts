@@ -44,6 +44,11 @@ import {
   submitResponse,
   toPublicRoom,
   voteNextType,
+  setDeck,
+  skipUpcomingChallenge,
+  queueCustomChallenge,
+  crowdVote,
+  finishCrowdVoting,
 } from './rooms.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -356,6 +361,65 @@ io.on('connection', (socket) => {
       binding.playerId,
       String(payload?.vote ?? '') as 'speed' | 'creative' | 'subjective' | 'endurance' | 'surprise',
     )
+    if ('error' in result) return ack?.({ ok: false, error: result.error })
+    ack?.({ ok: true, room: toPublicRoom(result, binding.playerId) })
+    broadcastRoom(result.code)
+  })
+
+  socket.on('setDeck', async (payload, ack) => {
+    try {
+      const code = String(payload?.roomCode ?? payload?.code ?? '')
+      if (code) await hydrateRoom(code)
+      const binding = bindingFrom(payload)
+      if (!binding) return ack?.({ ok: false, error: 'Inte i ett rum' })
+      const result = setDeck(binding.code, binding.playerId, String(payload?.deckId ?? 'classic'))
+      if ('error' in result) return ack?.({ ok: false, error: result.error })
+      ack?.({ ok: true, room: toPublicRoom(result, binding.playerId) })
+      broadcastRoom(result.code)
+    } catch (e) {
+      console.error(e)
+      ack?.({ ok: false, error: 'Kunde inte ändra spellista' })
+    }
+  })
+
+  socket.on('skipUpcomingChallenge', (payload, ack) => {
+    const binding = bindingFrom(payload)
+    if (!binding) return ack?.({ ok: false, error: 'Inte i ett rum' })
+    const result = skipUpcomingChallenge(binding.code, binding.playerId)
+    if ('error' in result) return ack?.({ ok: false, error: result.error })
+    ack?.({ ok: true, room: toPublicRoom(result, binding.playerId) })
+    broadcastRoom(result.code)
+  })
+
+  socket.on('queueCustomChallenge', (payload, ack) => {
+    const binding = bindingFrom(payload)
+    if (!binding) return ack?.({ ok: false, error: 'Inte i ett rum' })
+    const result = queueCustomChallenge(binding.code, binding.playerId, {
+      title: String(payload?.title ?? ''),
+      description: String(payload?.description ?? ''),
+      type: String(payload?.type ?? 'creative') as 'speed' | 'creative' | 'subjective' | 'endurance',
+      submissionMode: payload?.submissionMode as 'draw' | 'text' | 'physical' | undefined,
+      timeLimitSeconds:
+        payload?.timeLimitSeconds != null ? Number(payload.timeLimitSeconds) : undefined,
+    })
+    if ('error' in result) return ack?.({ ok: false, error: result.error })
+    ack?.({ ok: true, room: toPublicRoom(result, binding.playerId) })
+    broadcastRoom(result.code)
+  })
+
+  socket.on('crowdVote', (payload, ack) => {
+    const binding = bindingFrom(payload)
+    if (!binding) return ack?.({ ok: false, error: 'Inte i ett rum' })
+    const result = crowdVote(binding.code, binding.playerId, String(payload?.targetId ?? ''))
+    if ('error' in result) return ack?.({ ok: false, error: result.error })
+    ack?.({ ok: true, room: toPublicRoom(result, binding.playerId) })
+    broadcastRoom(result.code)
+  })
+
+  socket.on('finishCrowdVoting', (payload, ack) => {
+    const binding = bindingFrom(payload)
+    if (!binding) return ack?.({ ok: false, error: 'Inte i ett rum' })
+    const result = finishCrowdVoting(binding.code, binding.playerId)
     if ('error' in result) return ack?.({ ok: false, error: result.error })
     ack?.({ ok: true, room: toPublicRoom(result, binding.playerId) })
     broadcastRoom(result.code)

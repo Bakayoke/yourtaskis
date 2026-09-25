@@ -1,5 +1,7 @@
 export type { Challenge, ChallengeType, SubmissionMode } from './challengeTypes.js'
-import type { Challenge, SubmissionMode } from './challengeTypes.js'
+import type { Challenge, ChallengeType, SubmissionMode } from './challengeTypes.js'
+import type { DeckId } from './decks.js'
+import { challengeMatchesDeck, normalizeDeckId } from './decks.js'
 import { generatedChallenges } from './challenges/generated.js'
 import { localizeChallengesSv } from './challenges/localizeSv.js'
 import { defaultTimer } from './challenges/timers.js'
@@ -295,12 +297,20 @@ export function submissionModeFor(challenge: Challenge): SubmissionMode {
   return 'physical'
 }
 
-export function pickNextChallenge(
-  usedIds: string[],
-  preferredType?: ChallengeType | null,
-): Challenge {
+export type PickChallengeOptions = {
+  preferredType?: ChallengeType | null
+  deckId?: DeckId
+}
+
+export function pickNextChallenge(usedIds: string[], options?: PickChallengeOptions | null): Challenge {
+  const preferredType = options?.preferredType
+  const deckId = normalizeDeckId(options?.deckId)
   const unused = allChallenges.filter((c) => !usedIds.includes(c.id))
   let pool = unused.length > 0 ? unused : allChallenges
+  if (deckId !== 'classic') {
+    const decked = pool.filter((c) => challengeMatchesDeck(c, deckId))
+    if (decked.length > 0) pool = decked
+  }
   if (preferredType) {
     const typed = pool.filter((c) => c.type === preferredType)
     if (typed.length > 0) pool = typed

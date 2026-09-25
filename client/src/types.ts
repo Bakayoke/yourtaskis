@@ -1,5 +1,8 @@
 export type RoomStatus = 'lobby' | 'challenge' | 'judging' | 'scores' | 'finished'
 
+export type DeckId = 'classic' | 'family' | 'mild' | 'wild' | 'creative'
+export type JudgingMode = 'host' | 'crowd'
+
 export type ChallengeType = 'speed' | 'creative' | 'subjective' | 'endurance'
 export type SubmissionMode = 'draw' | 'text' | 'physical'
 export type ReactionEmoji = 'laugh' | 'fire' | 'skull'
@@ -73,6 +76,12 @@ export type PublicRoom = {
   comeback: ComebackHighlight | null
   handicap: HandicapInfo | null
   awards: SessionAward[] | null
+  deckId: DeckId
+  upcomingChallenge: PublicChallenge | null
+  judgingMode: JudgingMode
+  crowdVoteCounts: Record<string, number>
+  yourCrowdVote: string | null
+  crowdVotesDone: number
 }
 
 export type Session = {

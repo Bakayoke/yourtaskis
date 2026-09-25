@@ -35,6 +35,10 @@ import { challengeTypeLabel } from './challengeTypeLabel'
 import { SubmissionGallery } from './SubmissionGallery'
 import { TypeVoteHostSummary } from './TypeVotePanel'
 import { ComebackBanner, HandicapBanner, SessionAwards } from './SessionAwards'
+import { DeckSelector } from './DeckSelector'
+import { CustomChallengePanel } from './CustomChallengePanel'
+import { UpcomingChallengePanel } from './UpcomingChallengePanel'
+import { CrowdRoundBanner, CrowdVotePanel } from './CrowdVotePanel'
 import type { PublicRoom } from './types'
 
 function useCountdown(endsAt: number) {
@@ -380,6 +384,20 @@ export default function TvApp() {
               onChange={(maxRounds) => setRoom((r) => (r ? { ...r, maxRounds } : r))}
               onError={(msg) => setError(formatError(msg, lang))}
             />
+            <DeckSelector
+              deckId={room.deckId}
+              disabled={busy}
+              variant="tv"
+              ui={ui}
+              onChange={(deckId) => setRoom((r) => (r ? { ...r, deckId } : r))}
+              onError={(msg) => setError(formatError(msg, lang))}
+            />
+            <CustomChallengePanel
+              room={room}
+              ui={ui}
+              disabled={busy}
+              onError={(msg) => setError(formatError(msg, lang))}
+            />
             <button
               type="button"
               className="tv-btn primary large"
@@ -404,6 +422,10 @@ export default function TvApp() {
       {room.status === 'challenge' && room.challenge && (
         <main className="tv-main challenge">
           <HandicapBanner room={room} ui={ui} />
+          <CrowdRoundBanner room={room} ui={ui} />
+          {room.challenge.submissionMode === 'physical' && (
+            <p className="tv-physical-banner">{ui.physicalBanner}</p>
+          )}
           <div className="tv-challenge-meta">
             <span className="tv-type">{challengeTypeLabel(room.challenge.type, ui)}</span>
             {countdown != null && countdown > 0 && (
@@ -434,7 +456,20 @@ export default function TvApp() {
         </main>
       )}
 
-      {room.status === 'judging' && (
+      {room.status === 'judging' && room.judgingMode === 'crowd' && (
+        <main className="tv-main judging">
+          <h1 className="tv-section-title">{ui.crowdHostTitle}</h1>
+          <SubmissionGallery room={room} ui={ui} tv />
+          <CrowdVotePanel
+            room={room}
+            ui={ui}
+            disabled={busy}
+            onError={(msg) => setError(formatError(msg, lang))}
+          />
+        </main>
+      )}
+
+      {room.status === 'judging' && room.judgingMode !== 'crowd' && (
         <main className="tv-main judging">
           <h1 className="tv-section-title">{ui.judgeTitle}</h1>
           <p className="tv-muted">{ui.judgeHint}</p>
@@ -489,6 +524,18 @@ export default function TvApp() {
           <h1 className="tv-section-title">{fill(ui.scoresAfter, { n: room.roundIndex })}</h1>
           <ComebackBanner room={room} ui={ui} />
           <SubmissionGallery room={room} ui={ui} tv compact />
+          <UpcomingChallengePanel
+            room={room}
+            ui={ui}
+            disabled={busy}
+            onError={(msg) => setError(formatError(msg, lang))}
+          />
+          <CustomChallengePanel
+            room={room}
+            ui={ui}
+            disabled={busy}
+            onError={(msg) => setError(formatError(msg, lang))}
+          />
           <TypeVoteHostSummary room={room} ui={ui} />
           {room.roundScores && (
             <ul className="tv-round-scores">

@@ -15,6 +15,10 @@ import { challengeTypeLabel } from './challengeTypeLabel'
 import { SubmissionGallery } from './SubmissionGallery'
 import { TypeVoteHostSummary, TypeVotePanel } from './TypeVotePanel'
 import { ComebackBanner, HandicapBanner, SessionAwards } from './SessionAwards'
+import { DeckSelector } from './DeckSelector'
+import { CustomChallengePanel } from './CustomChallengePanel'
+import { UpcomingChallengePanel } from './UpcomingChallengePanel'
+import { CrowdRoundBanner, CrowdVotePanel } from './CrowdVotePanel'
 import {
   backToLobby,
   clearSession,
@@ -584,6 +588,19 @@ export default function App() {
                     onChange={(maxRounds) => setRoom((r) => (r ? { ...r, maxRounds } : r))}
                     onError={(msg) => setError(formatError(msg, lang))}
                   />
+                  <DeckSelector
+                    deckId={room.deckId}
+                    disabled={busy}
+                    ui={ui}
+                    onChange={(deckId) => setRoom((r) => (r ? { ...r, deckId } : r))}
+                    onError={(msg) => setError(formatError(msg, lang))}
+                  />
+                  <CustomChallengePanel
+                    room={room}
+                    ui={ui}
+                    disabled={busy}
+                    onError={(msg) => setError(formatError(msg, lang))}
+                  />
                   <div className="stack">
                     <button
                       type="button"
@@ -630,6 +647,7 @@ export default function App() {
           {room.status === 'challenge' && room.challenge && !room.youPendingRound && (
             <section className="card challenge-card">
               <HandicapBanner room={room} ui={ui} />
+              <CrowdRoundBanner room={room} ui={ui} />
               <p className="eyebrow">{challengeTypeLabel(room.challenge.type, ui)}</p>
               <h2>{room.challenge.title}</h2>
               <p className="challenge-text">{room.challenge.description}</p>
@@ -689,6 +707,7 @@ export default function App() {
                   )}
                   {room.challenge.submissionMode === 'physical' && (
                     <>
+                      <p className="physical-banner">{ui.physicalBanner}</p>
                       <p className="muted">{ui.physicalHint}</p>
                       <button
                         type="button"
@@ -705,7 +724,19 @@ export default function App() {
             </section>
           )}
 
-          {room.status === 'judging' && room.youAreHost && (
+          {room.status === 'judging' && room.youAreHost && room.judgingMode === 'crowd' && (
+            <section className="card">
+              <SubmissionGallery room={room} ui={ui} showReactions={showReactions} />
+              <CrowdVotePanel
+                room={room}
+                ui={ui}
+                disabled={busy}
+                onError={(msg) => setError(formatError(msg, lang))}
+              />
+            </section>
+          )}
+
+          {room.status === 'judging' && room.youAreHost && room.judgingMode !== 'crowd' && (
             <section className="card">
               <h2>{ui.judgeTitle}</h2>
               <p className="muted">{ui.judgeHint}</p>
@@ -760,9 +791,21 @@ export default function App() {
 
           {room.status === 'judging' && !room.youAreHost && (
             <section className="card">
-              <h2>{ui.judging}</h2>
-              <p className="muted">{fill(ui.judgingWait, { name: room.hostName })}</p>
+              <h2>{room.judgingMode === 'crowd' ? ui.crowdTitle : ui.judging}</h2>
+              <p className="muted">
+                {room.judgingMode === 'crowd'
+                  ? ui.crowdHint
+                  : fill(ui.judgingWait, { name: room.hostName })}
+              </p>
               <SubmissionGallery room={room} ui={ui} showReactions={showReactions} />
+              {room.judgingMode === 'crowd' && (
+                <CrowdVotePanel
+                  room={room}
+                  ui={ui}
+                  disabled={busy}
+                  onError={(msg) => setError(formatError(msg, lang))}
+                />
+              )}
             </section>
           )}
 
@@ -771,6 +814,18 @@ export default function App() {
               <h2>{fill(ui.scoresAfter, { n: room.roundIndex })}</h2>
               <ComebackBanner room={room} ui={ui} />
               <SubmissionGallery room={room} ui={ui} compact showReactions={showReactions} />
+              <UpcomingChallengePanel
+                room={room}
+                ui={ui}
+                disabled={busy}
+                onError={(msg) => setError(formatError(msg, lang))}
+              />
+              <CustomChallengePanel
+                room={room}
+                ui={ui}
+                disabled={busy}
+                onError={(msg) => setError(formatError(msg, lang))}
+              />
               <TypeVotePanel room={room} ui={ui} />
               <TypeVoteHostSummary room={room} ui={ui} />
               {room.roundScores && (

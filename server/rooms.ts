@@ -4,11 +4,16 @@ import {
   getChallenge,
   pickNextChallenge,
   submissionModeFor,
+  defaultTimer,
 } from './challenges.js'
+import type { Challenge } from './challengeTypes.js'
+import { normalizeDeckId, type DeckId } from './decks.js'
 import type { ChallengeType } from './challengeTypes.js'
 import { pickHandicapText } from './handicaps.js'
 import { deleteRoomRecord, loadRoomRecord, saveRoomRecord } from './persist.js'
 import type {
+  CustomChallengeInput,
+  JudgingMode,
   PublicChallenge,
   PublicRoom,
   ReactionEmoji,
@@ -121,6 +126,72 @@ function normalizeRoom(room: Room) {
   if (room.comeback === undefined) room.comeback = null
   if (room.handicap === undefined) room.handicap = null
   if (room.sessionAwards === undefined) room.sessionAwards = null
+  if (!room.deckId) room.deckId = 'classic'
+  else room.deckId = normalizeDeckId(room.deckId)
+  if (room.upcomingChallengeId === undefined) room.upcomingChallengeId = null
+  if (!room.judgingMode) room.judgingMode = 'host'
+  if (!room.crowdVotes) room.crowdVotes = {}
+  if (!room.customChallenges) room.customChallenges = {}
+}
+
+function resolveChallenge(room: Room, id: string): Challenge | undefined {
+  return room.customChallenges[id] ?? getChallenge(id)
+}
+
+function pickOptions(room: Room) {
+  return {
+    preferredType: winningVoteType(room),
+    deckId: room.deckId,
+  }
+}
+
+function refreshUpcomingChallenge(room: Room) {
+  if (room.status !== 'scores' || roundsComplete(room)) {
+    room.upcomingChallengeId = null
+    return
+  }
+  const next = pickNextChallenge(room.usedChallengeIds, pickOptions(room))
+  room.upcomingChallengeId = next.id
+}
+
+function judgingModeForRound(roundIndex: number): JudgingMode {
+  return roundIndex > 0 && roundIndex % 3 === 0 ? 'crowd' : 'host'
+}
+
+function crowdScoresFromVotes(room: Room): Record<string, number> {
+  const active = activeParticipants(room)
+  const counts: Record<string, number> = {}
+  for (const p of active) counts[p.id] = 0
+  for (const targetId of Object.values(room.crowdVotes)) {
+    if (counts[targetId] != null) counts[targetId]! += 1
+  }
+  const maxVotes = Math.max(0, ...Object.values(counts))
+  const scores: Record<string, number> = {}
+  if (maxVotes === 0) {
+    for (const p of active) scores[p.id] = 2
+    return scores
+  }
+  const sorted = [...active].sort((a, b) => (counts[b.id] ?? 0) - (counts[a.id] ?? 0))
+  const ladder = [5, 4, 3, 2, 1]
+  for (let i = 0; i < sorted.length; i++) {
+    const p = sorted[i]!
+    const prev = i > 0 ? sorted[i - 1]! : null
+    if (prev && (counts[prev.id] ?? 0) === (counts[p.id] ?? 0)) {
+      scores[p.id] = scores[prev.id]!
+    } else {
+      scores[p.id] = ladder[Math.min(i, ladder.length - 1)] ?? 1
+    }
+  }
+  return scores
+}
+
+function tryFinishCrowdVoting(room: Room) {
+  const voters = activeParticipants(room)
+  const allVoted = voters.every((p) => room.crowdVotes[p.id] != null)
+  if (!allVoted) return false
+  room.roundScores = crowdScoresFromVotes(room)
+  moveToScores(room)
+  return true
 }
 
 function aggregateReactions(room: Room) {
@@ -160,7 +231,7 @@ function winningVoteType(room: Room): ChallengeType | null {
 }
 
 function recordRoundHistory(room: Room) {
-  const challenge = room.currentChallengeId ? getChallenge(room.currentChallengeId) : null
+  const challenge = room.currentChallengeId ? resolveChallenge(room, room.currentChallengeId) : null
   if (!challenge) return
   for (const [playerId, points] of Object.entries(room.roundScores)) {
     if (points === 5) {
@@ -252,7 +323,7 @@ function roundsComplete(room: Room) {
 
 function challengeForRoom(room: Room): PublicChallenge | null {
   if (!room.currentChallengeId) return null
-  const c = getChallenge(room.currentChallengeId)
+  const c = resolveChallenge(room, room.currentChallengeId)
   if (!c) return null
   return {
     id: c.id,
@@ -275,7 +346,7 @@ function allParticipantsSubmitted(room: Room) {
 }
 
 function beginChallenge(room: Room, challengeId: string) {
-  const challenge = getChallenge(challengeId)
+  const challenge = resolveChallenge(room, challengeId)
   if (!challenge) return
   room.currentChallengeId = challengeId
   if (!room.usedChallengeIds.includes(challengeId)) {
@@ -283,8 +354,11 @@ function beginChallenge(room: Room, challengeId: string) {
   }
   room.submissions = []
   room.roundScores = {}
+  room.crowdVotes = {}
+  room.judgingMode = judgingModeForRound(room.roundIndex)
   resetRoundMeta(room)
   room.status = 'challenge'
+  room.upcomingChallengeId = null
   room.phaseEndsAt =
     challenge.timeLimitSeconds != null
       ? Date.now() + challenge.timeLimitSeconds * 1000
@@ -295,6 +369,7 @@ function moveToJudging(room: Room) {
   room.status = 'judging'
   room.phaseEndsAt = 0
   room.roundScores = {}
+  room.crowdVotes = {}
 }
 
 function isHost(room: Room, playerId: string) {
@@ -320,6 +395,7 @@ function moveToScores(room: Room) {
   } else {
     room.status = 'scores'
     room.phaseEndsAt = 0
+    refreshUpcomingChallenge(room)
   }
 }
 
@@ -382,6 +458,11 @@ export function createRoom(hostName: string, socketId: string) {
     usedChallengeIds: [],
     updatedAt: Date.now(),
     ...emptyRoomMeta(),
+    deckId: 'classic',
+    upcomingChallengeId: null,
+    judgingMode: 'host',
+    crowdVotes: {},
+    customChallenges: {},
   }
   rooms.set(code, room)
   socketToPlayer.set(socketId, { code, playerId: hostId })
@@ -521,7 +602,7 @@ export function startGame(code: string, playerId: string) {
 
   room.roundIndex = 1
   activatePendingPlayers(room)
-  const next = pickNextChallenge(room.usedChallengeIds)
+  const next = pickNextChallenge(room.usedChallengeIds, { deckId: room.deckId })
   beginChallenge(room, next.id)
   touch(room)
   return room
@@ -547,7 +628,7 @@ export function submitResponse(code: string, playerId: string, payload: string) 
   const player = room.players.find((p) => p.id === playerId)
   if (player?.pendingRound) return { error: 'Du går med från nästa test' as const }
 
-  const challenge = room.currentChallengeId ? getChallenge(room.currentChallengeId) : null
+  const challenge = room.currentChallengeId ? resolveChallenge(room, room.currentChallengeId) : null
   if (!challenge) return { error: 'Inget test aktivt' as const }
 
   const mode = submissionModeFor(challenge)
@@ -580,6 +661,9 @@ export function scorePlayer(code: string, playerId: string, targetId: string, po
   if (!room) return { error: 'Rummet finns inte' as const }
   if (!isHost(room, playerId)) return { error: 'Bara testledaren kan ge poäng' as const }
   if (room.status !== 'judging') return { error: 'Inte i bedömningsfas' as const }
+  if (room.judgingMode === 'crowd') {
+    return { error: 'Gruppen röstar den här rundan — testledaren ger inga poäng' as const }
+  }
   if (targetId === room.hostId) return { error: 'Testledaren får inga poäng' as const }
 
   const target = room.players.find((p) => p.id === targetId)
@@ -609,9 +693,12 @@ export function nextRound(code: string, playerId: string) {
   room.roundIndex += 1
   activatePendingPlayers(room)
   assignHandicapForLeader(room)
-  const preferred = winningVoteType(room)
-  const next = pickNextChallenge(room.usedChallengeIds, preferred)
-  beginChallenge(room, next.id)
+  const upcoming = room.upcomingChallengeId
+  const nextId =
+    upcoming && resolveChallenge(room, upcoming)
+      ? upcoming
+      : pickNextChallenge(room.usedChallengeIds, pickOptions(room)).id
+  beginChallenge(room, nextId)
   touch(room)
   return room
 }
@@ -657,6 +744,109 @@ export function voteNextType(code: string, playerId: string, vote: TypeVote) {
   if (!allowed.includes(vote)) return { error: 'Ogiltig röst' as const }
 
   room.typeVotes[playerId] = vote
+  if (room.status === 'scores' && !roundsComplete(room)) {
+    refreshUpcomingChallenge(room)
+  }
+  touch(room)
+  return room
+}
+
+export function setDeck(code: string, playerId: string, deckId: string) {
+  const room = getRoom(code)
+  if (!room) return { error: 'Rummet finns inte' as const }
+  if (!isHost(room, playerId)) return { error: 'Bara testledaren kan välja spellista' as const }
+  if (room.status !== 'lobby') return { error: 'Kan bara ändras i lobbyn' as const }
+  room.deckId = normalizeDeckId(deckId)
+  touch(room)
+  return room
+}
+
+export function skipUpcomingChallenge(code: string, playerId: string) {
+  const room = getRoom(code)
+  if (!room) return { error: 'Rummet finns inte' as const }
+  if (!isHost(room, playerId)) return { error: 'Bara testledaren kan hoppa över' as const }
+  if (room.status !== 'scores') return { error: 'Kan bara byta nästa test mellan rundor' as const }
+  if (roundsComplete(room)) return { error: 'Inga fler rundor' as const }
+  const skipId = room.upcomingChallengeId
+  if (skipId && !room.usedChallengeIds.includes(skipId)) {
+    room.usedChallengeIds.push(skipId)
+  }
+  refreshUpcomingChallenge(room)
+  touch(room)
+  return room
+}
+
+export function queueCustomChallenge(code: string, playerId: string, input: CustomChallengeInput) {
+  const room = getRoom(code)
+  if (!room) return { error: 'Rummet finns inte' as const }
+  if (!isHost(room, playerId)) return { error: 'Bara testledaren kan lägga till eget test' as const }
+  if (room.status !== 'lobby' && room.status !== 'scores') {
+    return { error: 'Eget test kan läggas till i lobbyn eller mellan rundor' as const }
+  }
+  if (roundsComplete(room)) return { error: 'Inga fler rundor' as const }
+
+  const title = String(input.title ?? '').trim()
+  const description = String(input.description ?? '').trim()
+  if (!title || !description) return { error: 'Titel och instruktion krävs' as const }
+
+  const type = input.type
+  const allowed: Challenge['type'][] = ['speed', 'creative', 'subjective', 'endurance']
+  if (!allowed.includes(type)) return { error: 'Ogiltig testtyp' as const }
+
+  const mode =
+    input.submissionMode ??
+    (type === 'creative'
+      ? 'draw'
+      : type === 'subjective'
+        ? 'text'
+        : 'physical')
+  const id = `custom-${makeId()}`
+  const challenge: Challenge = {
+    id,
+    title: title.slice(0, 80),
+    description: description.slice(0, 600),
+    type,
+    submissionMode: mode,
+    timeLimitSeconds:
+      input.timeLimitSeconds != null && input.timeLimitSeconds > 0
+        ? Math.min(600, Math.round(input.timeLimitSeconds))
+        : defaultTimer(type, mode),
+  }
+  room.customChallenges[id] = challenge
+  room.upcomingChallengeId = id
+  touch(room)
+  return room
+}
+
+export function crowdVote(code: string, playerId: string, targetId: string) {
+  const room = getRoom(code)
+  if (!room) return { error: 'Rummet finns inte' as const }
+  if (room.status !== 'judging') return { error: 'Rösta efter testet' as const }
+  if (room.judgingMode !== 'crowd') return { error: 'Testledaren bedömer den här rundan' as const }
+  if (isHost(room, playerId)) return { error: 'Testledaren röstar inte' as const }
+  const player = room.players.find((p) => p.id === playerId)
+  if (player?.pendingRound) return { error: 'Du går med från nästa test' as const }
+  if (targetId === playerId) return { error: 'Du kan inte rösta på dig själv' as const }
+  if (targetId === room.hostId) return { error: 'Ogiltigt val' as const }
+  if (!activeParticipants(room).some((p) => p.id === targetId)) {
+    return { error: 'Deltagaren hittades inte' as const }
+  }
+
+  room.crowdVotes[playerId] = targetId
+  tryFinishCrowdVoting(room)
+  touch(room)
+  return room
+}
+
+export function finishCrowdVoting(code: string, playerId: string) {
+  const room = getRoom(code)
+  if (!room) return { error: 'Rummet finns inte' as const }
+  if (!isHost(room, playerId)) return { error: 'Bara testledaren kan avsluta röstningen' as const }
+  if (room.status !== 'judging' || room.judgingMode !== 'crowd') {
+    return { error: 'Ingen gruppröstning just nu' as const }
+  }
+  room.roundScores = crowdScoresFromVotes(room)
+  moveToScores(room)
   touch(room)
   return room
 }
@@ -677,6 +867,10 @@ export function backToLobby(code: string, playerId: string) {
   room.fiveStarCounts = {}
   room.sessionAwards = null
   room.handicap = null
+  room.upcomingChallengeId = null
+  room.crowdVotes = {}
+  room.judgingMode = 'host'
+  room.customChallenges = {}
   resetRoundMeta(room)
   for (const p of room.players) {
     p.pendingRound = false
@@ -833,5 +1027,35 @@ export function toPublicRoom(room: Room, viewerId: string): PublicRoom {
     comeback: room.comeback,
     handicap: room.handicap,
     awards: room.sessionAwards,
+    deckId: room.deckId,
+    upcomingChallenge:
+      room.upcomingChallengeId && resolveChallenge(room, room.upcomingChallengeId)
+        ? challengeForRoomFromId(room, room.upcomingChallengeId)
+        : null,
+    judgingMode: room.judgingMode,
+    crowdVoteCounts: tallyCrowdVotes(room),
+    yourCrowdVote: room.crowdVotes[viewerId] ?? null,
+    crowdVotesDone: Object.keys(room.crowdVotes).length,
   }
+}
+
+function challengeForRoomFromId(room: Room, id: string): PublicChallenge | null {
+  const c = resolveChallenge(room, id)
+  if (!c) return null
+  return {
+    id: c.id,
+    title: c.title,
+    description: c.description,
+    type: c.type,
+    timeLimitSeconds: c.timeLimitSeconds ?? null,
+    submissionMode: submissionModeFor(c),
+  }
+}
+
+function tallyCrowdVotes(room: Room) {
+  const counts: Record<string, number> = {}
+  for (const targetId of Object.values(room.crowdVotes)) {
+    counts[targetId] = (counts[targetId] ?? 0) + 1
+  }
+  return counts
 }

@@ -1876,3 +1876,94 @@ body.tv-route #root {
 .tv-app .session-awards li {
   font-size: clamp(1rem, 1.8vw, 1.35rem);
 }
+
+.deck-selector {
+  margin: 1rem 0;
+}
+
+.deck-label {
+  margin: 0 0 0.5rem;
+  font-weight: 700;
+}
+
+.deck-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+}
+
+.physical-banner,
+.crowd-banner,
+.tv-physical-banner {
+  margin: 0 0 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius);
+  border: 1px solid rgba(99, 179, 237, 0.45);
+  background: rgba(99, 179, 237, 0.12);
+  font-size: 0.95rem;
+}
+
+.crowd-banner {
+  border-color: rgba(244, 196, 48, 0.45);
+  background: rgba(244, 196, 48, 0.1);
+}
+
+.custom-challenge {
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.custom-challenge-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.custom-challenge-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+}
+
+.custom-challenge-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+.upcoming-challenge {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: var(--radius);
+  border: 1px dashed var(--line);
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.upcoming-challenge h3 {
+  margin: 0 0 0.35rem;
+}
+
+.upcoming-desc {
+  font-size: 0.92rem;
+  margin: 0.35rem 0 0.75rem;
+}
+
+.crowd-vote {
+  margin-top: 1rem;
+}
+
+.crowd-pick-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.crowd-tally {
+  list-style: none;
+  margin: 0.5rem 0;
+  padding: 0;
+}

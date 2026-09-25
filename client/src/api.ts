@@ -1,6 +1,6 @@
 import { io, type Socket } from 'socket.io-client'
 import { normalizePublicRoom } from './roomUtils'
-import type { PublicRoom, ReactionEmoji, Session, TypeVote } from './types'
+import type { ChallengeType, DeckId, PublicRoom, ReactionEmoji, Session, SubmissionMode, TypeVote } from './types'
 
 const PRODUCTION_API = 'https://yourtaskis-production.up.railway.app'
 const API_BASE = (import.meta.env.VITE_SOCKET_URL || PRODUCTION_API).replace(/\/$/, '')
@@ -200,7 +200,13 @@ async function ack<T>(event: string, payload?: unknown): Promise<T> {
         roomCode: raw.roomCode ?? session?.code,
       }
 
-  if (event !== 'create' && event !== 'join' && event !== 'rejoin' && event !== 'setMaxRounds') {
+  if (
+    event !== 'create' &&
+    event !== 'join' &&
+    event !== 'rejoin' &&
+    event !== 'setMaxRounds' &&
+    event !== 'setDeck'
+  ) {
     await ensureSessionBound(2)
   }
 
@@ -290,6 +296,32 @@ export async function addReaction(targetId: string, emoji: ReactionEmoji) {
 
 export async function voteNextType(vote: TypeVote) {
   return ack<{ ok: boolean; error?: string; room?: PublicRoom }>('voteNextType', { vote })
+}
+
+export async function setDeck(deckId: DeckId) {
+  return ack<{ ok: boolean; error?: string; room?: PublicRoom }>('setDeck', { deckId })
+}
+
+export async function skipUpcomingChallenge() {
+  return ack<{ ok: boolean; error?: string; room?: PublicRoom }>('skipUpcomingChallenge', {})
+}
+
+export async function queueCustomChallenge(payload: {
+  title: string
+  description: string
+  type: ChallengeType
+  submissionMode?: SubmissionMode
+  timeLimitSeconds?: number
+}) {
+  return ack<{ ok: boolean; error?: string; room?: PublicRoom }>('queueCustomChallenge', payload)
+}
+
+export async function crowdVote(targetId: string) {
+  return ack<{ ok: boolean; error?: string; room?: PublicRoom }>('crowdVote', { targetId })
+}
+
+export async function finishCrowdVoting() {
+  return ack<{ ok: boolean; error?: string; room?: PublicRoom }>('finishCrowdVoting', {})
 }
 
 export type HealthInfo = {

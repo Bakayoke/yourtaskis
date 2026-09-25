@@ -1,4 +1,4 @@
-import type { PublicRoom } from './types'
+import type { DeckId, PublicRoom } from './types'
 
 export const DEFAULT_MAX_ROUNDS = 5
 
@@ -32,5 +32,20 @@ export function normalizePublicRoom(room: PublicRoom): PublicRoom {
     comeback: room.comeback ?? null,
     handicap: room.handicap ?? null,
     awards: room.awards ?? null,
+    deckId: normalizeDeckId(room.deckId),
+    upcomingChallenge: room.upcomingChallenge ?? null,
+    judgingMode: room.judgingMode === 'crowd' ? 'crowd' : 'host',
+    crowdVoteCounts: room.crowdVoteCounts ?? {},
+    yourCrowdVote: room.yourCrowdVote ?? null,
+    crowdVotesDone: room.crowdVotesDone ?? 0,
   }
+}
+
+const DECK_IDS: DeckId[] = ['classic', 'family', 'mild', 'wild', 'creative']
+
+export function normalizeDeckId(value: unknown): DeckId {
+  if (typeof value === 'string' && (DECK_IDS as string[]).includes(value)) {
+    return value as DeckId
+  }
+  return 'classic'
 }

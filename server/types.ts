@@ -1,4 +1,15 @@
-import type { ChallengeType, SubmissionMode } from './challengeTypes.js'
+import type { Challenge, ChallengeType, SubmissionMode } from './challengeTypes.js'
+import type { DeckId } from './decks.js'
+
+export type JudgingMode = 'host' | 'crowd'
+
+export type CustomChallengeInput = {
+  title: string
+  description: string
+  type: ChallengeType
+  submissionMode?: SubmissionMode
+  timeLimitSeconds?: number
+}
 
 export type RoomStatus = 'lobby' | 'challenge' | 'judging' | 'scores' | 'finished'
 
@@ -75,6 +86,12 @@ export type Room = {
   comeback: ComebackHighlight | null
   handicap: HandicapInfo | null
   sessionAwards: SessionAward[] | null
+  deckId: DeckId
+  /** Next round preview (scores phase). */
+  upcomingChallengeId: string | null
+  judgingMode: JudgingMode
+  crowdVotes: Record<string, string>
+  customChallenges: Record<string, Challenge>
 }
 
 export type PublicChallenge = {
@@ -119,4 +136,10 @@ export type PublicRoom = {
   comeback: ComebackHighlight | null
   handicap: HandicapInfo | null
   awards: SessionAward[] | null
+  deckId: DeckId
+  upcomingChallenge: PublicChallenge | null
+  judgingMode: JudgingMode
+  crowdVoteCounts: Record<string, number>
+  yourCrowdVote: string | null
+  crowdVotesDone: number
 }
