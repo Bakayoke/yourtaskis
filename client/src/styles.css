@@ -646,22 +646,25 @@ textarea {
 /* —— TV mode (host / big screen) —— */
 
 body.tv-route {
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 body.tv-route #root {
-  height: 100dvh;
   min-height: 100dvh;
+  height: auto;
 }
 
 .tv-app {
   position: relative;
   width: 100%;
   min-height: 100dvh;
-  height: 100%;
+  height: auto;
   max-width: none;
   margin: 0;
   padding: clamp(1rem, 2vh, 2rem) clamp(1.25rem, 3vw, 4rem);
+  padding-bottom: clamp(2rem, 5vh, 4rem);
   display: flex;
   flex-direction: column;
   gap: clamp(1rem, 2vh, 2rem);
@@ -1019,11 +1022,11 @@ body.tv-route #root {
 }
 
 .tv-main {
-  flex: 1;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   gap: clamp(1.25rem, 2.5vh, 2rem);
-  min-height: 0;
+  min-height: min-content;
 }
 
 .tv-main.lobby {
