@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import { createServer } from 'node:http'
+import { access } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Server, type Socket } from 'socket.io'
@@ -14,6 +15,14 @@ import {
   scheduleSave,
   subscribeRoomUpdates,
 } from './persist.js'
+import {
+  adminStatsTokenConfigured,
+  configureGameStatsFileDir,
+  getGameStartStats,
+  loadGameStatsFromFile,
+  renderGameStatsHtml,
+  verifyAdminStatsToken,
+} from './gameStats.js'
 import {
   addReaction,
   allRooms,
@@ -149,6 +158,31 @@ app.get('/api/room/:code/preview', async (req, res) => {
     return
   }
   res.json(preview)
+})
+
+app.get('/api/admin/stats', async (req, res) => {
+  if (!adminStatsTokenConfigured()) {
+    res.status(503).json({ error: 'Admin stats not configured (set ADMIN_STATS_TOKEN)' })
+    return
+  }
+  const token = String(req.query.token ?? '')
+  if (!verifyAdminStatsToken(token)) {
+    res.status(401).json({ error: 'Unauthorized' })
+    return
+  }
+  try {
+    const stats = await getGameStartStats()
+    const liveRooms = [...allRooms()].length
+    const format = String(req.query.format ?? 'json').toLowerCase()
+    if (format === 'html') {
+      res.type('html').send(renderGameStatsHtml(stats, liveRooms))
+      return
+    }
+    res.json({ ok: true, liveRooms, ...stats })
+  } catch (e) {
+    console.error(e)
+    res.status(500).json({ error: 'Could not load stats' })
+  }
 })
 
 io.on('connection', (socket) => {
@@ -453,6 +487,18 @@ if (isProd) {
 
 async function main() {
   const { backend } = await initPersist()
+  let statsDir = process.env.YOURTASKIS_DATA_DIR?.trim() || null
+  if (!statsDir) {
+    try {
+      await access('/data')
+      statsDir = '/data'
+    } catch {
+      statsDir = null
+    }
+  }
+  configureGameStatsFileDir(statsDir)
+  await loadGameStatsFromFile()
+
   const snap = await loadSnapshot()
   if (snap) {
     restoreRooms(snap.rooms)

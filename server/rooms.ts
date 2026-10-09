@@ -11,6 +11,7 @@ import { normalizeDeckId, type DeckId } from './decks.js'
 import type { ChallengeType } from './challengeTypes.js'
 import { pickHandicapText } from './handicaps.js'
 import { deleteRoomRecord, loadRoomRecord, saveRoomRecord } from './persist.js'
+import { recordGameStarted } from './gameStats.js'
 import type {
   CustomChallengeInput,
   JudgingMode,
@@ -605,6 +606,7 @@ export function startGame(code: string, playerId: string) {
   const next = pickNextChallenge(room.usedChallengeIds, { deckId: room.deckId })
   beginChallenge(room, next.id)
   touch(room)
+  void recordGameStarted().catch((err) => console.error('recordGameStarted failed', err))
   return room
 }
 

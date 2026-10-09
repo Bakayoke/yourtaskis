@@ -93,6 +93,10 @@ async function dirExists(dir: string) {
   }
 }
 
+export function getRedisClient(): RedisClient | null {
+  return redis
+}
+
 export function getRedisUrl(): string | null {
   return (
     process.env.REDIS_URL?.trim() ||
