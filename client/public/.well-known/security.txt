@@ -1,0 +1,5 @@
+Contact: mailto:security@yourtaskis.com
+Contact: https://github.com/Bakayoke/yourtaskis/issues
+Preferred-Languages: sv, en
+Canonical: https://yourtaskis.com/.well-known/security.txt
+Expires: 2027-10-11T23:59:59.000Z
