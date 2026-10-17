@@ -77,6 +77,7 @@ function evictOtherSockets(code: string, playerId: string, keepSocketId: string)
 }
 
 function mergeRoomFromPersist(live: Room, persisted: Room) {
+  if ((persisted.updatedAt ?? 0) < (live.updatedAt ?? 0)) return
   live.hostId = persisted.hostId
   live.status = persisted.status
   live.roundIndex = persisted.roundIndex
@@ -542,13 +543,17 @@ export function joinRoom(code: string, name: string, socketId: string) {
   const trimmed = name.trim()
   if (!trimmed) return { error: 'Ange ett namn' as const }
 
+  applyLiveConnectionState(room)
   const existingConnected = room.players.find(
-    (p) => p.name.toLowerCase() === trimmed.toLowerCase() && p.connected,
+    (p) =>
+      p.name.toLowerCase() === trimmed.toLowerCase() && hasActiveSocket(room.code, p.id),
   )
   if (existingConnected) return { error: 'Namnet är redan taget' as const }
 
   const reclaim = room.players.find(
-    (p) => p.name.toLowerCase() === trimmed.toLowerCase() && !p.connected,
+    (p) =>
+      p.name.toLowerCase() === trimmed.toLowerCase() &&
+      !hasActiveSocket(room.code, p.id),
   )
   if (reclaim) {
     cancelDisconnectTimer(room.code, reclaim.id)
@@ -601,6 +606,7 @@ export function handleDisconnect(socketId: string) {
 
   player.connected = false
   touch(room)
+  onBroadcast?.(room.code)
 
   const key = playerKey(room.code, player.id)
   const t = setTimeout(() => {
@@ -614,13 +620,15 @@ export function handleDisconnect(socketId: string) {
     if (r.status !== 'lobby' && r.status !== 'finished') return
 
     if (p.id === r.hostId) {
-      const next = r.players.find((x) => x.id !== r.hostId && x.connected)
+      const next = r.players.find(
+        (x) => x.id !== r.hostId && hasActiveSocket(r.code, x.id),
+      )
       if (next) {
         r.hostId = next.id
       }
     }
 
-    r.players = r.players.filter((x) => x.id !== player.id || x.connected)
+    r.players = r.players.filter((x) => x.id !== player.id || hasActiveSocket(r.code, x.id))
     if (r.players.length === 0) {
       rooms.delete(r.code)
       void deleteRoomRecord(r.code)
@@ -956,8 +964,14 @@ export function leaveParty(code: string, playerId: string) {
   if (!player) return { error: 'Spelaren hittades inte' as const }
 
   if (playerId === room.hostId) {
-    if (room.status === 'lobby') return closeLobby(code, playerId)
-    if (room.status !== 'finished') {
+    if (room.status === 'lobby') {
+      const others = room.players.filter((p) => p.id !== playerId)
+      if (others.length === 0) return closeLobby(code, playerId)
+      applyLiveConnectionState(room)
+      const nextHost =
+        others.find((p) => hasActiveSocket(room.code, p.id)) ?? others[0]!
+      room.hostId = nextHost.id
+    } else if (room.status !== 'finished') {
       return { error: 'Testledaren avslutar spelet i menyn eller startar om från lobbyn' as const }
     }
   }

@@ -13,25 +13,7 @@ let rejoinInFlight: Promise<{
   error?: string
 } | null> | null = null
 let connectionListenersAttached = false
-let boundSessionKey: string | null = null
 let presenceTimer: ReturnType<typeof setInterval> | null = null
-
-function sessionKey(code: string, playerId: string) {
-  return `${code.toUpperCase()}:${playerId}`
-}
-
-function markSessionBound(code: string, playerId: string) {
-  boundSessionKey = sessionKey(code, playerId)
-}
-
-function isSessionBound() {
-  const session = loadSession()
-  if (!session || !boundSessionKey) return false
-  return (
-    boundSessionKey === sessionKey(session.code, session.playerId) &&
-    Boolean(socket?.connected)
-  )
-}
 
 type RoomHandler = (room: PublicRoom) => void
 let onRoomHandler: RoomHandler | null = null
@@ -57,9 +39,6 @@ export function getSocket() {
     connectionListenersAttached = true
     socket.on('connect', () => {
       void ensureSessionBound()
-    })
-    socket.on('disconnect', () => {
-      boundSessionKey = null
     })
     if (typeof document !== 'undefined') {
       document.addEventListener('visibilitychange', () => {
@@ -150,9 +129,6 @@ export async function ensureSessionBound(
 ): Promise<{ ok: boolean; playerId?: string; room?: PublicRoom; error?: string } | null> {
   const session = loadSession()
   if (!session) return null
-  if (isSessionBound()) {
-    return { ok: true, playerId: session.playerId }
-  }
   if (rejoinInFlight) return rejoinInFlight
 
   rejoinInFlight = (async () => {
@@ -163,7 +139,6 @@ export async function ensureSessionBound(
     for (let i = 0; i < retries; i++) {
       last = await rejoinGame(session.code, session.playerId)
       if (last.ok && last.room) {
-        markSessionBound(session.code, session.playerId)
         onRoomHandler?.(normalizePublicRoom(last.room))
         return last
       }
@@ -222,18 +197,6 @@ async function ack<T>(event: string, payload?: unknown): Promise<T> {
     s.timeout(12000).emit(event, body, (err: Error | null, res: T) => {
       if (err) reject(err)
       else {
-        if (
-          isIdentityEvent &&
-          res &&
-          typeof res === 'object' &&
-          'ok' in res &&
-          (res as { ok: boolean }).ok &&
-          'playerId' in res &&
-          'room' in res
-        ) {
-          const ok = res as OkRoom
-          markSessionBound(ok.room.code, ok.playerId)
-        }
         resolve(res)
       }
     })
@@ -394,7 +357,6 @@ export function clearSessionIfDifferentRoom(code: string) {
 
 export function clearSession() {
   localStorage.removeItem(SESSION_KEY)
-  boundSessionKey = null
 }
 
 export function joinUrl(code: string) {

@@ -470,6 +470,9 @@ io.on('connection', (socket) => {
     const result = leaveParty(binding.code, binding.playerId)
     if ('error' in result) return ack?.({ ok: false, error: result.error })
     if ('closed' in result) {
+      for (const s of socketsInRoom(binding.code, binding.playerId)) {
+        s.emit('roomClosed', { reason: 'lobby' })
+      }
       ack?.({ ok: true, closed: true })
       return
     }
