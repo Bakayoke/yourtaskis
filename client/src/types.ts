@@ -88,4 +88,5 @@ export type Session = {
   code: string
   playerId: string
   name: string
+  savedAt?: number
 }

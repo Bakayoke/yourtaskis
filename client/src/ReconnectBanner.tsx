@@ -1,21 +1,17 @@
-import { ensureSessionBound, loadSession, type ConnState } from './api'
+import { ensureSessionBound, type ConnState } from './api'
 import { fill, type Ui } from './i18n'
 import type { PublicRoom } from './types'
 
 type Props = {
   conn: ConnState
-  room: PublicRoom | null
   ui: Ui
   onReconnected?: () => void
 }
 
-export function ReconnectBanner({ conn, room, ui, onReconnected }: Props) {
-  const session = loadSession()
-  const self = session && room?.players.find((p) => p.id === session.playerId)
+export function ReconnectBanner({ conn, ui, onReconnected }: Props) {
   const offline = conn !== 'connected'
-  const away = Boolean(self && !self.connected && !room?.youAreHost)
 
-  if (!offline && !away) return null
+  if (!offline) return null
 
   async function retry() {
     const res = await ensureSessionBound()
@@ -24,7 +20,7 @@ export function ReconnectBanner({ conn, room, ui, onReconnected }: Props) {
 
   return (
     <div className="reconnect-banner" role="status">
-      <p>{offline ? (conn === 'connecting' ? ui.reconnecting : ui.disconnected) : ui.youAreAway}</p>
+      <p>{conn === 'connecting' ? ui.reconnecting : ui.disconnected}</p>
       <button type="button" className="btn secondary small" onClick={() => void retry()}>
         {ui.reconnectNow}
       </button>

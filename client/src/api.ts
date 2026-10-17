@@ -14,6 +14,7 @@ let rejoinInFlight: Promise<{
 } | null> | null = null
 let connectionListenersAttached = false
 let boundSessionKey: string | null = null
+let presenceTimer: ReturnType<typeof setInterval> | null = null
 
 function sessionKey(code: string, playerId: string) {
   return `${code.toUpperCase()}:${playerId}`
@@ -66,6 +67,13 @@ export function getSocket() {
           void ensureSessionBound()
         }
       })
+      if (!presenceTimer) {
+        presenceTimer = setInterval(() => {
+          if (document.visibilityState !== 'visible') return
+          if (!loadSession()) return
+          void ensureSessionBound(2)
+        }, 25_000)
+      }
     }
     socket.on('room', (room: PublicRoom) => {
       onRoomHandler?.(normalizePublicRoom(room))
@@ -324,6 +332,10 @@ export async function finishCrowdVoting() {
   return ack<{ ok: boolean; error?: string; room?: PublicRoom }>('finishCrowdVoting', {})
 }
 
+export async function leaveParty() {
+  return ack<{ ok: boolean; closed?: boolean; error?: string; room?: PublicRoom }>('leaveParty', {})
+}
+
 export type HealthInfo = {
   ok: boolean
   rooms?: number
@@ -366,7 +378,18 @@ export function loadSession(): Session | null {
 }
 
 export function saveSession(session: Session) {
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session))
+  localStorage.setItem(
+    SESSION_KEY,
+    JSON.stringify({ ...session, savedAt: session.savedAt ?? Date.now() }),
+  )
+}
+
+export function clearSessionIfDifferentRoom(code: string) {
+  const session = loadSession()
+  if (!session) return
+  if (session.code.toUpperCase() !== code.toUpperCase()) {
+    clearSession()
+  }
 }
 
 export function clearSession() {

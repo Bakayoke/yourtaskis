@@ -42,13 +42,15 @@ import {
   pruneIdleRooms,
   removePlayer,
   reconnectSocket,
-  reloadRoomFromStore,
   restoreRooms,
   roomsNeedingTick,
   scorePlayer,
   setBroadcastHook,
   setMaxRounds,
   setPersistHook,
+  setEvictSocketHook,
+  leaveParty,
+  syncRoomFromStore,
   startGame,
   submitResponse,
   toPublicRoom,
@@ -115,6 +117,9 @@ function persistNow() {
 
 setPersistHook(persistNow)
 setBroadcastHook(broadcastRoom)
+setEvictSocketHook((socketId) => {
+  io.of('/').sockets.get(socketId)?.disconnect(true)
+})
 
 function socketsInRoom(code: string, exceptPlayerId?: string): Socket[] {
   const out: Socket[] = []
@@ -234,7 +239,7 @@ io.on('connection', (socket) => {
   socket.on('rejoin', async (payload, ack) => {
     try {
       const code = String(payload?.code ?? '')
-      await hydrateRoom(code)
+      await syncRoomFromStore(code)
       const result = reconnectSocket(code, String(payload?.playerId ?? ''), socket.id)
       if ('error' in result) {
         ack?.({ ok: false, error: result.error })
@@ -459,6 +464,19 @@ io.on('connection', (socket) => {
     broadcastRoom(result.code)
   })
 
+  socket.on('leaveParty', (payload, ack) => {
+    const binding = bindingFrom(payload)
+    if (!binding) return ack?.({ ok: false, error: 'Inte i ett rum' })
+    const result = leaveParty(binding.code, binding.playerId)
+    if ('error' in result) return ack?.({ ok: false, error: result.error })
+    if ('closed' in result) {
+      ack?.({ ok: true, closed: true })
+      return
+    }
+    ack?.({ ok: true, room: toPublicRoom(result.room, binding.playerId) })
+    broadcastRoom(result.room.code)
+  })
+
   socket.on('disconnect', () => {
     const binding = getBinding(socket.id)
     handleDisconnect(socket.id)
@@ -517,7 +535,7 @@ async function main() {
   }
 
   await subscribeRoomUpdates((code) => {
-    void reloadRoomFromStore(code).then((room) => {
+    void syncRoomFromStore(code).then((room) => {
       if (room) broadcastRoom(code)
     })
   })

@@ -39,6 +39,7 @@ const disconnectTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
 let onPersist: (() => void) | null = null
 let onBroadcast: ((code: string) => void) | null = null
+let onEvictSocket: ((socketId: string) => void) | null = null
 
 export function setPersistHook(fn: (() => void) | null) {
   onPersist = fn
@@ -46,6 +47,59 @@ export function setPersistHook(fn: (() => void) | null) {
 
 export function setBroadcastHook(fn: ((code: string) => void) | null) {
   onBroadcast = fn
+}
+
+export function setEvictSocketHook(fn: ((socketId: string) => void) | null) {
+  onEvictSocket = fn
+}
+
+function hasActiveSocket(code: string, playerId: string) {
+  const c = code.toUpperCase()
+  for (const binding of socketToPlayer.values()) {
+    if (binding.code === c && binding.playerId === playerId) return true
+  }
+  return false
+}
+
+export function applyLiveConnectionState(room: Room) {
+  for (const p of room.players) {
+    p.connected = hasActiveSocket(room.code, p.id)
+  }
+}
+
+function evictOtherSockets(code: string, playerId: string, keepSocketId: string) {
+  const c = code.toUpperCase()
+  for (const [socketId, binding] of socketToPlayer.entries()) {
+    if (binding.code !== c || binding.playerId !== playerId || socketId === keepSocketId) continue
+    socketToPlayer.delete(socketId)
+    onEvictSocket?.(socketId)
+  }
+}
+
+function mergeRoomFromPersist(live: Room, persisted: Room) {
+  live.hostId = persisted.hostId
+  live.status = persisted.status
+  live.roundIndex = persisted.roundIndex
+  live.maxRounds = persisted.maxRounds
+  live.currentChallengeId = persisted.currentChallengeId
+  live.phaseEndsAt = persisted.phaseEndsAt
+  live.submissions = persisted.submissions
+  live.roundScores = persisted.roundScores
+  live.usedChallengeIds = persisted.usedChallengeIds
+  live.updatedAt = persisted.updatedAt
+  live.reactionLog = persisted.reactionLog
+  live.typeVotes = persisted.typeVotes
+  live.roundHistory = persisted.roundHistory
+  live.fiveStarCounts = persisted.fiveStarCounts
+  live.comeback = persisted.comeback
+  live.handicap = persisted.handicap
+  live.sessionAwards = persisted.sessionAwards
+  live.deckId = persisted.deckId
+  live.upcomingChallengeId = persisted.upcomingChallengeId
+  live.judgingMode = persisted.judgingMode
+  live.crowdVotes = persisted.crowdVotes
+  live.customChallenges = persisted.customChallenges
+  live.players = persisted.players.map((p) => ({ ...p }))
 }
 
 function touch(room?: Room) {
@@ -424,15 +478,25 @@ export async function hydrateRoom(code: string) {
   }
 }
 
-export async function reloadRoomFromStore(code: string) {
+/** Merge persisted game state without clobbering live socket presence. */
+export async function syncRoomFromStore(code: string) {
   const c = code.toUpperCase().trim()
   const loaded = await loadRoomRecord(c)
-  if (loaded) {
-    normalizeRoom(loaded)
+  if (!loaded) return getRoom(c) ?? null
+  normalizeRoom(loaded)
+  const live = rooms.get(c)
+  if (!live) {
     rooms.set(c, loaded)
+    applyLiveConnectionState(loaded)
     return loaded
   }
-  return null
+  mergeRoomFromPersist(live, loaded)
+  applyLiveConnectionState(live)
+  return live
+}
+
+export async function reloadRoomFromStore(code: string) {
+  return syncRoomFromStore(code)
 }
 
 export function restoreRooms(restored: Room[]) {
@@ -488,6 +552,7 @@ export function joinRoom(code: string, name: string, socketId: string) {
   )
   if (reclaim) {
     cancelDisconnectTimer(room.code, reclaim.id)
+    evictOtherSockets(room.code, reclaim.id, socketId)
     reclaim.connected = true
     socketToPlayer.set(socketId, { code: room.code, playerId: reclaim.id })
     touch(room)
@@ -515,8 +580,10 @@ export function reconnectSocket(code: string, playerId: string, socketId: string
   if (!player) return { error: 'Spelaren hittades inte' as const }
 
   cancelDisconnectTimer(room.code, playerId)
+  evictOtherSockets(room.code, playerId, socketId)
   player.connected = true
   socketToPlayer.set(socketId, { code: room.code, playerId })
+  applyLiveConnectionState(room)
   touch(room)
   return room
 }
@@ -541,7 +608,7 @@ export function handleDisconnect(socketId: string) {
     const r = getRoom(room.code)
     if (!r) return
     const p = r.players.find((x) => x.id === player.id)
-    if (!p || p.connected) return
+    if (!p || hasActiveSocket(r.code, p.id)) return
 
     // Keep roster intact while a game is running — phone sleep shouldn't drop players.
     if (r.status !== 'lobby' && r.status !== 'finished') return
@@ -882,6 +949,32 @@ export function backToLobby(code: string, playerId: string) {
   return room
 }
 
+export function leaveParty(code: string, playerId: string) {
+  const room = getRoom(code)
+  if (!room) return { error: 'Rummet finns inte' as const }
+  const player = room.players.find((p) => p.id === playerId)
+  if (!player) return { error: 'Spelaren hittades inte' as const }
+
+  if (playerId === room.hostId) {
+    if (room.status === 'lobby') return closeLobby(code, playerId)
+    if (room.status !== 'finished') {
+      return { error: 'Testledaren avslutar spelet i menyn eller startar om från lobbyn' as const }
+    }
+  }
+
+  cancelDisconnectTimer(code, playerId)
+  for (const [socketId, binding] of socketToPlayer.entries()) {
+    if (binding.code === room.code && binding.playerId === playerId) {
+      socketToPlayer.delete(socketId)
+      onEvictSocket?.(socketId)
+    }
+  }
+
+  room.players = room.players.filter((p) => p.id !== playerId)
+  touch(room)
+  return { room, left: true as const }
+}
+
 export function removePlayer(code: string, hostId: string, targetId: string) {
   const room = getRoom(code)
   if (!room) return { error: 'Rummet finns inte' as const }
@@ -968,6 +1061,7 @@ export function pruneIdleRooms() {
 
 export function toPublicRoom(room: Room, viewerId: string): PublicRoom {
   normalizeRoom(room)
+  applyLiveConnectionState(room)
   const host = hostOf(room)
   const youAreHost = viewerId === room.hostId
   const viewer = room.players.find((p) => p.id === viewerId)

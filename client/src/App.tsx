@@ -22,6 +22,7 @@ import { CrowdRoundBanner, CrowdVotePanel } from './CrowdVotePanel'
 import {
   backToLobby,
   clearSession,
+  clearSessionIfDifferentRoom,
   closeLobby,
   createGame,
   endChallenge,
@@ -32,6 +33,7 @@ import {
   joinGame,
   joinUrl,
   tvUrl,
+  leaveParty,
   loadSession,
   nextRound,
   removePlayer,
@@ -167,7 +169,9 @@ export default function App() {
     const params = new URLSearchParams(window.location.search)
     const code = params.get('join')
     if (code) {
-      setJoinCode(code.toUpperCase())
+      const upper = code.toUpperCase()
+      clearSessionIfDifferentRoom(upper)
+      setJoinCode(upper)
       setScreen('join')
     }
   }, [])
@@ -215,6 +219,13 @@ export default function App() {
   }, [conn, screen])
 
   useEffect(() => {
+    if (screen !== 'play' || room || conn !== 'connected') return
+    const session = loadSession()
+    if (!session) return
+    void resumeSession()
+  }, [screen, room, conn])
+
+  useEffect(() => {
     if (room?.status === 'challenge') {
       setTextDraft('')
       setDrawDraft('')
@@ -242,6 +253,7 @@ export default function App() {
 
   async function handleCreate() {
     if (!name.trim()) return setError(ui.errorName)
+    clearSession()
     setBusy(true)
     setError(null)
     try {
@@ -275,6 +287,7 @@ export default function App() {
 
   async function handleJoin() {
     if (!name.trim()) return setError(ui.errorName)
+    clearSessionIfDifferentRoom(joinCode.trim().toUpperCase())
     setBusy(true)
     setError(null)
     try {
@@ -295,10 +308,16 @@ export default function App() {
     await act(() => removePlayer(playerId))
   }
 
-  function leaveGame() {
-    clearSession()
-    setRoom(null)
-    setScreen('home')
+  async function leaveGame() {
+    setBusy(true)
+    try {
+      if (loadSession()) await leaveParty().catch(() => null)
+    } finally {
+      clearSession()
+      setRoom(null)
+      setScreen('home')
+      setBusy(false)
+    }
   }
 
   async function handleCloseLobby() {
@@ -334,6 +353,13 @@ export default function App() {
     setBusy(true)
     setError(null)
     try {
+      const preview = await fetchRoomPreview(session.code).catch(() => null)
+      if (!preview) {
+        clearSession()
+        setError(ui.errorResume)
+        setScreen('home')
+        return
+      }
       const res = await rejoinGame(session.code, session.playerId)
       if (res.ok && res.room) {
         setRoom(normalizePublicRoom(res.room))
@@ -528,7 +554,6 @@ export default function App() {
 
           <ReconnectBanner
             conn={conn}
-            room={room}
             ui={ui}
             onReconnected={() => {
               const session = loadSession()
