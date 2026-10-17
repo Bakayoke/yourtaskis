@@ -6,6 +6,7 @@ import { SisterGames } from './SisterGames'
 import { LanguageToggle } from './LanguageToggle'
 import { PendingRoundBanner, ReconnectBanner } from './ReconnectBanner'
 import { HowItWorks } from './HowItWorks'
+import { FikaTip } from './FikaTip'
 import { fill, loadLanguage, rememberLanguage, t, type Lang } from './i18n'
 import { formatError } from './translateError'
 import { usePageMeta } from './usePageMeta'
@@ -441,6 +442,7 @@ export default function App() {
           </div>
           <HowItWorks ui={ui} />
           <p className="muted install-hint">{ui.installHint}</p>
+          <FikaTip ui={ui} />
           <SisterGames ui={ui} />
         </main>
       )}
@@ -904,6 +906,7 @@ export default function App() {
               ) : (
                 <>
                   <p className="muted">{ui.thanks}</p>
+                  <FikaTip ui={ui} />
                   <p className="muted">{fill(ui.playAgainWait, { name: room.hostName })}</p>
                 </>
               )}
